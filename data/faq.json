@@ -1,0 +1,66 @@
+{
+  "categories": [
+    {
+      "id": "general",
+      "title": "General Information",
+      "faqs": [
+        {
+          "question": "What is UfitGo?",
+          "answer": "UfitGo is Nigeria's leading digital marketplace and booking platform specifically designed for pilgrims. We connect you with verified independent service providers for Hajj, Umrah, money exchange, transport, and more."
+        },
+        {
+          "question": "How does UfitGo help me find reliable providers?",
+          "answer": "Finding the right provider shouldn't mean taking unnecessary risks. UfitGo helps take the stress out of the process by reviewing providers before they are listed. We perform applicable identity and eligibility checks to help you make more informed decisions when booking."
+        },
+        {
+          "question": "Is UfitGo a tour operator?",
+          "answer": "No, UfitGo is a technology platform and marketplace. We provide the tools for you to discover and book services, but the actual tours and packages are operated by our trusted independent partners."
+        },
+        {
+          "question": "Is UfitGo a bank or financial institution?",
+          "answer": "No. UfitGo is a digital marketplace connecting customers with independent service providers. We are not a bank, financial institution, or payment processor."
+        }
+      ]
+    },
+    {
+      "id": "customers",
+      "title": "For Customers",
+      "faqs": [
+        {
+          "question": "How do I book a package?",
+          "answer": "Simply browse our featured Hajj & Umrah experiences, select a package that fits your needs, review the details, and make your booking request directly through the UfitGo platform."
+        },
+        {
+          "question": "How are my payments processed?",
+          "answer": "All payments made through UfitGo are securely processed by our integrated third-party payment infrastructure. We ensure a seamless and safe transaction between you and the service provider."
+        },
+        {
+          "question": "Can I exchange foreign currency on UfitGo?",
+          "answer": "You can use UfitGo to discover and connect with verified independent foreign exchange dealers. UfitGo itself does not buy or sell foreign currency."
+        },
+        {
+          "question": "Who is responsible for the service I book?",
+          "answer": "The independent provider you choose is entirely responsible for delivering the service, managing your booking, and fulfilling the terms of the service."
+        }
+      ]
+    },
+    {
+      "id": "partners",
+      "title": "For Partners",
+      "faqs": [
+        {
+          "question": "How do I become a UfitGo partner?",
+          "answer": "You can apply to become a partner by visiting our 'Become a Partner' page and submitting an application. Once approved, you can list your services on our marketplace."
+        },
+        {
+          "question": "What kind of services can I list?",
+          "answer": "Verified partners can list Hajj & Umrah packages, foreign currency exchange services, transport and logistics, and travel SIMs."
+        },
+        {
+          "question": "How do I get paid?",
+          "answer": "Payments are processed through our integrated third-party payment infrastructure and settled directly to your registered bank account according to our settlement terms."
+        }
+      ]
+    }
+  ]
+}
