@@ -50,7 +50,7 @@ export function EmailVerificationBanner() {
   }
 
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-amber-50 px-6 py-2.5 sm:px-3.5 sm:before:flex-1">
+    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-amber-100 px-6 py-2.5 sm:px-3.5 sm:before:flex-1">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <p className="text-sm leading-6 text-amber-900 flex items-center gap-2">
           <AlertCircle className="h-4 w-4" />
@@ -75,7 +75,7 @@ export function EmailVerificationBanner() {
             disabled={isLoading}
             variant="outline"
             size="sm"
-            className="rounded-full bg-amber-100 border-amber-200 text-amber-900 hover:bg-amber-200 hover:text-amber-950 text-xs h-7 px-3"
+            className="rounded-full bg-white border-green-400 text-green-900 hover:bg-green-100 hover:text-green-950 text-xs h-7 px-3"
           >
             {isLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
             Resend Email
