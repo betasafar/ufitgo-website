@@ -24,7 +24,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl hover:shadow-primary/5 relative">
+    <article className="group flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl hover:shadow-primary/5 relative">
       {!noImage && (
         <Link href={`/packages/${pkg.id}`} className="relative block aspect-[16/10] w-full overflow-hidden bg-zinc-100 flex items-center justify-center">
           {hasValidImage ? (
@@ -115,7 +115,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
           ))}
         </ul>
 
-        <div className="mt-5 border-t border-border pt-4">
+        <div className="mt-auto border-t border-border pt-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs text-muted-foreground">Starting from</p>

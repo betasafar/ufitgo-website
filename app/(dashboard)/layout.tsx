@@ -13,12 +13,8 @@ export default async function DashboardLayout({
 }) {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
-    redirect("/login")
-  }
-
   // Redirect users who signed up with Google and haven't provided a phone number
-  if (!session.user.phone) {
+  if (session?.user && !(session.user as any).phone) {
     redirect("/onboarding")
   }
 

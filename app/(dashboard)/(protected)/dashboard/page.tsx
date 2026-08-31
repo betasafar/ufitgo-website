@@ -8,6 +8,14 @@ import { getWalletBalance, getSavingsTargets, getBookings, SavingsTarget, Bookin
 import { formatNaira } from "@/lib/packages"
 import { Bell, BellRing, Package, X, Eye, EyeOff, CalendarDays, Users, ChevronRight, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 
 export default function DashboardOverview() {
   const { data: session } = useSession()
@@ -19,21 +27,34 @@ export default function DashboardOverview() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [showBalance, setShowBalance] = useState(true)
   
-  const [alerts, setAlerts] = useState([
-    { id: 1, text: "Your package availability request has been submitted", time: "2h ago", icon: <BellRing className="w-3 h-3 text-amber-500" /> },
-    { id: 2, text: "You're 50% closer to your Umrah savings target!", time: "1d ago", icon: <Bell className="w-3 h-3 text-amber-500" /> }
-  ])
+  const [allNotifications, setAllNotifications] = useState<any[]>([])
 
   useEffect(() => {
     setBalance(getWalletBalance())
     setTargets(getSavingsTargets())
     setBookings(getBookings().reverse()) // Newest first
-    setIsLoaded(true)
-  }, [])
+
+    if (session?.user?.id && session?.accessToken) {
+      import("@/lib/api").then(({ fetchUserNotifications }) => {
+        fetchUserNotifications(session.user.id, session.accessToken as string)
+          .then((data) => {
+            if (Array.isArray(data)) {
+              setAllNotifications(data)
+            }
+          })
+          .catch(err => console.error("Failed to load notifications:", err))
+          .finally(() => setIsLoaded(true))
+      })
+    } else {
+      setIsLoaded(true)
+    }
+  }, [session])
 
   if (!isLoaded) return <div className="p-8">Loading dashboard...</div>
 
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const unreadCount = allNotifications.filter(n => !n.read).length
+  const unreadAlerts = allNotifications.filter(n => !n.read)
 
   const tabs = [
     { name: "Explore Packages", href: "/packages" },
@@ -45,6 +66,14 @@ export default function DashboardOverview() {
   const activeTarget = targets[0]
   const recentBooking = bookings[0]
 
+  const handleDismiss = (id: string) => {
+    setAllNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    import("@/lib/api").then(({ markNotificationAsRead }) => {
+      markNotificationAsRead(id, session?.accessToken as string)
+        .catch(err => console.error("Failed to dismiss:", err))
+    })
+  }
+
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
@@ -54,22 +83,67 @@ export default function DashboardOverview() {
         </h1>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="hidden sm:inline-block font-medium">{today}</span>
-          <div className="relative">
-            <Bell className="w-5 h-5 text-foreground" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 border-2 border-background rounded-full"></span>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative outline-none">
+                <Bell className="w-5 h-5 text-foreground hover:text-primary transition-colors" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 border-2 border-background rounded-full"></span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 p-0 rounded-2xl shadow-xl border-border/50">
+              <div className="p-4 border-b border-border/50">
+                <h3 className="font-bold text-foreground font-serif">Notifications</h3>
+                <p className="text-xs text-muted-foreground">You have {unreadCount} unread message{unreadCount !== 1 ? 's' : ''}.</p>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto">
+                {allNotifications.length > 0 ? (
+                  allNotifications.map(notification => (
+                    <div 
+                      key={notification.id} 
+                      className={`p-4 border-b border-border/20 hover:bg-slate-50 transition-colors ${!notification.read ? 'bg-amber-50/30' : ''}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5">
+                          <BellRing className={`w-4 h-4 ${!notification.read ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className={`text-sm ${!notification.read ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'}`}>
+                            {notification.title || notification.message}
+                          </p>
+                          <p className="text-xs text-muted-foreground/70 font-medium">
+                            {new Date(notification.createdAt).toLocaleDateString()} at {new Date(notification.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-sm text-muted-foreground font-medium">
+                    No notifications yet.
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* Alerts */}
-      {alerts.length > 0 && (
+      {unreadAlerts.length > 0 && (
         <div className="flex flex-wrap gap-3">
-          {alerts.map(alert => (
+          {unreadAlerts.map(alert => (
             <div key={alert.id} className="flex items-center gap-2 bg-card border border-border rounded-full py-2 px-4 text-sm shadow-sm transition-all hover:shadow-md">
-              {alert.icon}
-              <span className="font-semibold text-foreground ml-1">{alert.text}</span>
-              <span className="text-muted-foreground text-xs mx-1">{alert.time}</span>
-              <button onClick={() => setAlerts(alerts.filter(a => a.id !== alert.id))} className="ml-1 text-muted-foreground hover:text-foreground">
+              <BellRing className="w-3 h-3 text-amber-500" />
+              <span className="font-semibold text-foreground ml-1">{alert.title || alert.message}</span>
+              <span className="text-muted-foreground text-xs mx-1">
+                {new Date(alert.createdAt).toLocaleDateString()}
+              </span>
+              <button 
+                onClick={() => handleDismiss(alert.id)} 
+                className="ml-1 text-muted-foreground hover:text-foreground"
+              >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>

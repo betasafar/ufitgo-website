@@ -52,7 +52,7 @@ export async function FeaturedPackages() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((pkg, i) => (
-              <ScrollReveal key={pkg.id} delay={i * 150 + 100}>
+              <ScrollReveal key={pkg.id} delay={i * 150 + 100} className="h-full">
                 <PackageCard pkg={pkg} noImage />
               </ScrollReveal>
             ))}

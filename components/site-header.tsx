@@ -16,8 +16,8 @@ import { UfitGoLogo } from "@/components/ufitgo-logo"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { label: "Explore", href: "/#packages" },
-  { label: "Services", href: "/#services" },
+  { label: "Operators", href: "/operators" },
+  // { label: "Services", href: "/#services" },
   { label: "Why UfitGo", href: "/#why" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Become a Partner", href: "/#operators" },
@@ -109,7 +109,7 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
                 Sign in
               </Link>
             )}
-            <a href="/packages" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
+            <a href="/#services" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
               Explore Services
             </a>
           </div>
@@ -203,7 +203,7 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
               </Link>
             )}
             <a
-              href="/packages"
+              href="/#packages"
               onClick={() => setOpen(false)}
               className={cn(buttonVariants(), "w-full h-12 text-base")}
             >

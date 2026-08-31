@@ -28,6 +28,7 @@ const sidebarSections = [
     title: "PILGRIMAGE",
     links: [
       { name: "Packages", href: "/packages", icon: Package },
+      { name: "Operators", href: "/operators", icon: Briefcase },
       { name: "Bookings", href: "/bookings", icon: Briefcase },
       { name: "Payment History", href: "/transactions", icon: History },
     ]
@@ -63,16 +64,22 @@ export function DashboardSidebarContent() {
         </button>
       </div>
 
-      {/* User Profile Summary */}
-      {session?.user && (
+      {session?.user ? (
         <div className="px-6 py-4">
           <Link href="/profile" className="flex items-center gap-3 rounded-lg bg-card p-3 shadow-sm transition-colors hover:bg-secondary/50">
             <Avatar className="h-10 w-10">
-              <AvatarFallback>{session?.user?.firstName?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarFallback>{(session.user as any).firstName?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">{session?.user?.firstName} {session?.user?.lastName}</span>
+              <span className="text-sm font-semibold">{(session.user as any).firstName} {(session.user as any).lastName}</span>
+              <span className="text-xs text-muted-foreground">{session.user.email}</span>
             </div>
+          </Link>
+        </div>
+      ) : (
+        <div className="px-6 py-4">
+          <Link href="/login" className="flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground p-3 font-semibold shadow-sm transition-colors hover:bg-primary/90">
+            Sign In to Book
           </Link>
         </div>
       )}
@@ -108,30 +115,32 @@ export function DashboardSidebarContent() {
           </div>
         ))}
 
-        <div className="mt-8 mb-4">
-          <h4 className="mb-2 px-2 text-xs font-semibold tracking-wider text-muted-foreground/70">
-            ACCOUNT
-          </h4>
-          <Link 
-            href="/settings"
-            className={cn(
-              "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors mb-1",
-              pathname.startsWith("/settings")
-                ? "bg-accent/10 text-accent font-semibold" 
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-            )}
-          >
-            <Settings className={cn("h-4 w-4", pathname.startsWith("/settings") ? "text-accent" : "text-muted-foreground")} />
-            Settings
-          </Link>
-          <button 
-            onClick={() => setIsLogoutOpen(true)}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </button>
-        </div>
+        {session?.user && (
+          <div className="mt-8 mb-4">
+            <h4 className="mb-2 px-2 text-xs font-semibold tracking-wider text-muted-foreground/70">
+              ACCOUNT
+            </h4>
+            <Link 
+              href="/settings"
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors mb-1",
+                pathname.startsWith("/settings")
+                  ? "bg-accent/10 text-accent font-semibold" 
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )}
+            >
+              <Settings className={cn("h-4 w-4", pathname.startsWith("/settings") ? "text-accent" : "text-muted-foreground")} />
+              Settings
+            </Link>
+            <button 
+              onClick={() => setIsLogoutOpen(true)}
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
+          </div>
+        )}
       </div>
 
       <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>

@@ -30,9 +30,15 @@ export function DashboardHeader() {
         <button className="text-muted-foreground hover:text-foreground">
           <Bell className="h-5 w-5" />
         </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground font-bold text-xs">
-          {session?.user?.firstName?.charAt(0) || ""}{session?.user?.lastName?.charAt(0) || "U"}
-        </div>
+        {session?.user ? (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground font-bold text-xs">
+            {(session.user as any).firstName?.charAt(0) || ""}{(session.user as any).lastName?.charAt(0) || "U"}
+          </div>
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground font-bold text-xs">
+            G
+          </div>
+        )}
       </div>
     </header>
   )

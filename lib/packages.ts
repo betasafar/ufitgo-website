@@ -3,10 +3,15 @@ export type PilgrimageType = "umrah" | "hajj"
 export type Operator = {
   id: number
   name: string
+  companyName?: string
+  logo?: string | null
   verified: boolean
+  verificationStatus?: string
   description: string
   rating: number
   reviews: number
+  trustScore?: number
+  yearsOfExperience?: number
 }
 
 export type Package = {
