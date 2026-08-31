@@ -22,8 +22,8 @@ export async function FeaturedPackages() {
       priceFrom: parseFloat(apiPkg.price),
       duration: apiPkg.duration,
       departureDate: apiPkg.departureDate,
-      departureCity: apiPkg.departingFrom.split(',')[0],
-      highlights: apiPkg.inclusions,
+      departureCity: apiPkg.departingFrom?.split(',')[0] || "Unknown",
+      highlights: apiPkg.inclusions || [],
       heroImage: apiPkg.images?.[0] || "/placeholder.svg",
       cardImage: apiPkg.images?.[0] || "/placeholder.svg",
     })) || []
