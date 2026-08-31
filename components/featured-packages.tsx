@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react"
 import { PackageCard } from "@/components/package-card"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { RetryButton } from "@/components/retry-button"
+import { revalidatePackages } from "@/app/actions"
 import { fetchPublicPackages } from "@/lib/api"
 import { type Package } from "@/lib/packages"
 
@@ -43,8 +45,9 @@ export async function FeaturedPackages() {
         </ScrollReveal>
 
         {error ? (
-          <div className="text-center py-10 text-red-400">
-            Failed to load packages. Please try again later.
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <p className="text-red-400 mb-2">Failed to load packages. Please try again later.</p>
+            <RetryButton action={revalidatePackages} />
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

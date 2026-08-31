@@ -13,16 +13,23 @@ export function BrowsePackagesClient({ initialPackages }: { initialPackages: Pac
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedMonths, setSelectedMonths] = useState<string[]>([])
   const [selectedCities, setSelectedCities] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [maxBudget, setMaxBudget] = useState<number | "">("")
   
   const [showFilters, setShowFilters] = useState(false)
 
   // Extract unique values for filters
   const types = Array.from(new Set(initialPackages.map((p) => p.type)))
-  const months = Array.from(new Set(initialPackages.map((p) => p.departureMonth)))
+  const months = Array.from(new Set(initialPackages.map((p) => {
+    if (!p.departureDate) return "Unknown"
+    try {
+      return new Date(p.departureDate).toLocaleString('default', { month: 'long', year: 'numeric' })
+    } catch {
+      return "Unknown"
+    }
+  })))
   const cities = Array.from(new Set(initialPackages.map((p) => p.departureCity)))
-  const categories = Array.from(new Set(initialPackages.map((p) => p.hotelCategory))).sort((a, b) => b - a)
+  const categories = Array.from(new Set(initialPackages.map((p) => p.category)))
 
   const toggleFilter = (
     current: any[],
@@ -38,25 +45,26 @@ export function BrowsePackagesClient({ initialPackages }: { initialPackages: Pac
 
   const filteredPackages = useMemo(() => {
     return initialPackages.filter((pkg) => {
+      const monthStr = pkg.departureDate ? new Date(pkg.departureDate).toLocaleString('default', { month: 'long', year: 'numeric' }) : "Unknown"
+
       // Search
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
         const matchName = pkg.name.toLowerCase().includes(query)
-        const matchOperator = pkg.operator.name.toLowerCase().includes(query)
+        const matchOperator = pkg.operator?.name?.toLowerCase().includes(query)
         const matchCity = pkg.departureCity.toLowerCase().includes(query)
-        const matchDest = pkg.hotels.some(h => h.city.toLowerCase().includes(query))
-        const matchDate = pkg.departureDate.toLowerCase().includes(query) || pkg.departureMonth.toLowerCase().includes(query)
+        const matchDate = pkg.departureDate?.toLowerCase().includes(query) || monthStr.toLowerCase().includes(query)
         
-        if (!matchName && !matchOperator && !matchCity && !matchDest && !matchDate) {
+        if (!matchName && !matchOperator && !matchCity && !matchDate) {
           return false
         }
       }
 
       // Filters
       if (selectedTypes.length > 0 && !selectedTypes.includes(pkg.type)) return false
-      if (selectedMonths.length > 0 && !selectedMonths.includes(pkg.departureMonth)) return false
+      if (selectedMonths.length > 0 && !selectedMonths.includes(monthStr)) return false
       if (selectedCities.length > 0 && !selectedCities.includes(pkg.departureCity)) return false
-      if (selectedCategories.length > 0 && !selectedCategories.includes(pkg.hotelCategory)) return false
+      if (selectedCategories.length > 0 && !selectedCategories.includes(pkg.category)) return false
       if (maxBudget !== "" && pkg.priceFrom > maxBudget) return false
 
       return true
@@ -156,7 +164,7 @@ export function BrowsePackagesClient({ initialPackages }: { initialPackages: Pac
 
               {/* Category Filter */}
               <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Hotel Category</h4>
+                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Category</h4>
                 <div className="space-y-2">
                   {categories.map((cat) => (
                     <label key={cat} className="flex items-center gap-2 text-sm">
@@ -166,7 +174,7 @@ export function BrowsePackagesClient({ initialPackages }: { initialPackages: Pac
                         onChange={() => toggleFilter(selectedCategories, setSelectedCategories, cat)}
                         className="rounded border-input text-primary focus:ring-primary"
                       />
-                      <span>{cat} Stars</span>
+                      <span className="capitalize">{cat}</span>
                     </label>
                   ))}
                 </div>
