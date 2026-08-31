@@ -9,18 +9,40 @@ import { cn } from "@/lib/utils"
 
 export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: boolean }) {
   const [isSaved, setIsSaved] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
+  const hasValidImage = pkg.cardImage && pkg.cardImage !== "/placeholder.svg" && !imageError
+
+  // Get up to 2 initials from the package name
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase()
+  }
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl hover:shadow-primary/5 relative">
       {!noImage && (
-        <Link href={`/packages/${pkg.id}`} className="relative block aspect-[16/10] w-full overflow-hidden">
-          <Image
-            src={pkg.cardImage || "/placeholder.svg"}
-            alt={`${pkg.name} — ${pkg.operator.name}`}
-            fill
-            sizes="(max-width: 768px) 100vw, 320px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+        <Link href={`/packages/${pkg.id}`} className="relative block aspect-[16/10] w-full overflow-hidden bg-zinc-100 flex items-center justify-center">
+          {hasValidImage ? (
+            <Image
+              src={pkg.cardImage}
+              alt={`${pkg.name} — ${pkg.operator.name}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 320px"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-primary/5">
+              <span className="text-5xl font-bold text-primary/30 uppercase tracking-widest">
+                {getInitials(pkg.name)}
+              </span>
+            </div>
+          )}
           <div className="absolute left-3 top-3 flex gap-2">
             <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow-sm">
               {pkg.type}
