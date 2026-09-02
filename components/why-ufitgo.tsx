@@ -3,23 +3,23 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 
 const features = [
   {
-    title: "Provider Review",
-    description: "Providers may go through applicable identity, business, and eligibility checks before being listed.",
+    title: "NAHCON-Licensed Providers",
+    description: "Every package and travel operator is strictly vetted and verified against national licensing boards.",
     icon: <ShieldCheck className="h-6 w-6 text-primary" />,
   },
   {
-    title: "Clear Provider Information",
-    description: "See who you are dealing with before making a booking or transaction request.",
+    title: "Secure Tier-1 Banking",
+    description: "Your bookings and savings are securely held in trust via regulated banking partners, ensuring maximum financial protection.",
     icon: <UserCheck className="h-6 w-6 text-primary" />,
   },
   {
-    title: "Everything in One Place",
-    description: "Discover services, manage bookings, and keep track of your activity from a single platform.",
+    title: "Complete Travel Ecosystem",
+    description: "From visa assistance to in-country logistics, manage your entire journey confidently from a single platform.",
     icon: <LayoutDashboard className="h-6 w-6 text-primary" />,
   },
   {
-    title: "Built for More Confidence",
-    description: "UfitGo is designed to reduce the uncertainty of dealing with unknown providers online.",
+    title: "Verified Local Amenities",
+    description: "Connect instantly with approved local services, reducing the uncertainty of international travel.",
     icon: <HeartHandshake className="h-6 w-6 text-primary" />,
   },
 ]
@@ -34,13 +34,10 @@ export function WhyUfitGo() {
           <ScrollReveal className="lg:w-1/2">
             <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">Why UfitGo</p>
             <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-6">
-              Don't just find a provider. Find one with more confidence.
+              Don't just travel. Travel with absolute security and verified partners.
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8 text-pretty">
-              Finding services online can be difficult. You may not know who to trust, whether a provider is legitimate, or who is actually behind the service.
-            </p>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-10 text-pretty">
-              UfitGo helps simplify the process by bringing provider discovery, relevant information, booking, and transaction tracking into one platform.
+              Booking travel logistics and essential services should be seamless and safe. UfitGo guarantees peace of mind by partnering exclusively with NAHCON-licensed providers and securing your funds through regulated tier-1 banking infrastructure.
             </p>
             
             <a

@@ -11,10 +11,10 @@ const services = [
     span: "md:col-span-2 lg:col-span-2",
   },
   {
-    title: "Money Exchange",
-    description: "Compare approved exchange agents and receive SAR/USD through pickup or delivery.",
-    icon: <ArrowRightLeft className="h-6 w-6 text-primary" />,
-    href: "/services/exchange",
+    title: "Travel Amenities Directory",
+    description: "Locate verified local services, specialized travel operators, and essential destination guides near you.",
+    icon: <MapPin className="h-6 w-6 text-primary" />,
+    href: "/services/amenities",
     span: "md:col-span-2 lg:col-span-2",
   },
   {

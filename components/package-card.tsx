@@ -142,7 +142,9 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
 
         <div className="mt-4 pt-3 border-t border-border/30">
           <p className="text-[10px] leading-tight text-muted-foreground/60 text-center">
-            UfitGo facilitates discovery and booking. This experience is provided by the independent provider above.
+            {/* UfitGo facilitates discovery and booking. This experience is provided by the independent provider above. */}
+            Disclaimer: UfitGo is a tech platform, not a tour operator. This experience is provided entirely by the independent, 
+            NAHCON-licensed provider listed above. UfitGo holds no liability for visa rejections, flight changes, or trip fulfillment.
           </p>
         </div>
       </div>

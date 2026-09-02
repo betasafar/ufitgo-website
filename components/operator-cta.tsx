@@ -7,7 +7,7 @@ const benefits = [
   "Reach thousands of verified pilgrims actively preparing for their journey",
   "Real-time dashboard with full analytics and booking management",
   "Integrated payment processing — receive payouts instantly and securely",
-  "Expand your offerings: list packages, exchange services, transport, or SIMs",
+  "Expand your offerings: list packages, travel amenities, transport, or SIMs",
   "Build trust with a 'Verified Partner' badge and our transparent review system",
 ]
 
@@ -26,7 +26,7 @@ export function OperatorCta() {
               Are you a Tour Operator or Service Provider?
             </h2>
             <p className="text-lg text-white/80 leading-relaxed mb-10 max-w-md text-pretty">
-              Join Nigeria's fastest-growing pilgrim marketplace. Whether you offer Hajj & Umrah packages, currency exchange, transport, or travel SIMs, UfitGo connects you directly with ready travelers.
+              Join Nigeria's fastest-growing pilgrim marketplace. Whether you offer Hajj & Umrah packages, verified travel logistics, transport, or travel SIMs, UfitGo connects you directly with ready travelers.
             </p>
             <a
               href="/partner"

@@ -3,11 +3,11 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const customerSteps = [
-  { icon: Search, title: "Explore available services", desc: "Discover options from independent providers." },
-  { icon: UserCheck, title: "Choose a provider", desc: "Select the provider that best meets your needs." },
-  { icon: FileText, title: "Review details", desc: "Review service details and applicable terms." },
-  { icon: CalendarCheck, title: "Make a request", desc: "Make a booking or transaction request." },
-  { icon: Settings, title: "Manage activity", desc: "Manage your activity through UfitGo." },
+  { icon: Search, title: "Explore verified services", desc: "Discover travel packages and amenities from strictly vetted, licensed operators." },
+  { icon: UserCheck, title: "Select your journey", desc: "Choose the provider and logistics that best suit your travel needs." },
+  { icon: FileText, title: "Review secure terms", desc: "Review transparent service details and banking-backed guarantees." },
+  { icon: CalendarCheck, title: "Submit secure booking", desc: "Lock in your request using our secure banking-integrated booking infrastructure." },
+  { icon: Settings, title: "Travel with confidence", desc: "Manage your itinerary and tracking effortlessly through the UfitGo platform." },
 ]
 
 const providerSteps = [
@@ -122,7 +122,7 @@ export function HowItWorks() {
           </div>
           
           <p className="mt-6 text-sm text-muted-foreground bg-secondary/80 px-4 py-2 rounded-full text-center">
-            Payments made through UfitGo are processed using integrated third-party payment infrastructure.
+            All bookings and target savings made through UfitGo are securely processed and held in trust by regulated banking partners.
           </p>
         </ScrollReveal>
       </div>

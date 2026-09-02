@@ -54,8 +54,8 @@ export function ExchangeWizard() {
 
   // Fetch agents when currency/city changes
   useEffect(() => {
-    if (!session?.user?.token && !session?.user?.accessToken) return;
-    const token = session.user.token || session.user.accessToken;
+    if (!(session?.user as any)?.token && !(session?.user as any)?.accessToken) return;
+    const token = (session?.user as any).token || (session?.user as any).accessToken;
     let isMounted = true;
     
     const fetchAgents = async () => {
@@ -95,7 +95,7 @@ export function ExchangeWizard() {
   const selectedAgent = agents.find(a => a.id === selectedAgentId) || agents[0]
 
   const handleConfirmPayment = async () => {
-    const token = session?.user?.token || session?.user?.accessToken;
+    const token = (session?.user as any)?.token || (session?.user as any)?.accessToken;
     if (!token || !selectedAgentId) return;
     
     setIsProcessing(true)
@@ -134,7 +134,7 @@ export function ExchangeWizard() {
   }
   
   const handleCancelOrder = async () => {
-    const token = session?.user?.token || session?.user?.accessToken;
+    const token = (session?.user as any)?.token || (session?.user as any)?.accessToken;
     if (!token || !currentOrder) return;
     try {
       await exchangeService.cancelOrder(token as string, currentOrder.id);
@@ -157,7 +157,7 @@ export function ExchangeWizard() {
       {/* Header */}
       <div className="bg-[#FDFBF7] p-4 sm:p-6 border-b border-border flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground">
-          {step === 1 ? "Currency Exchange" : "Order Status"}
+          {step === 1 ? "Travel Amenities" : "Order Status"}
         </h2>
       </div>
 

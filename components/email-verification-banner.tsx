@@ -31,6 +31,7 @@ export function EmailVerificationBanner() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
+        body: JSON.stringify({ email: session.user?.email })
       })
 
       const data = await res.json()

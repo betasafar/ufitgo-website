@@ -58,7 +58,7 @@ export default function DashboardOverview() {
 
   const tabs = [
     { name: "Explore Packages", href: "/packages" },
-    { name: "Money Exchange", href: "/exchange" },
+    { name: "Travel Amenities", href: "/amenities" },
     { name: "Target Savings", href: "/wallet" },
     { name: "Travel Support", href: "/support" }
   ]
@@ -79,7 +79,7 @@ export default function DashboardOverview() {
       {/* Header */}
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl sm:text-3xl font-bold font-serif text-foreground">
-          Good morning, {session?.user?.name?.split(" ")[0] || "Ahmed"}
+          Good morning, {(session?.user as any)?.firstName || "Ahmed"}
         </h1>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="hidden sm:inline-block font-medium">{today}</span>
