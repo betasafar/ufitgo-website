@@ -13,7 +13,7 @@ export function MobileAppCta() {
           <div className="absolute inset-0 -z-10 rounded-3xl bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50 blur-2xl"></div>
 
           {/* Text Content */}
-          <ScrollReveal className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+          <ScrollReveal className="max-w-xl mx-auto lg:mx-0 text-left">
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-xs font-medium text-zinc-300">
               <Smartphone className="h-4 w-4 text-primary" />
               Coming Soon to iOS & Android
@@ -27,7 +27,7 @@ export function MobileAppCta() {
               Manage your Hajj and Umrah bookings, compare packages on the go, and chat with your verified operators directly from your pocket. 
             </p>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row lg:justify-start">
               {/* Fake App Store Button */}
               <button className="flex h-14 w-full max-w-[200px] items-center justify-center gap-3 rounded-xl bg-zinc-800 px-4 text-white transition-colors hover:bg-zinc-700 sm:w-auto">
                 <svg viewBox="0 0 384 512" className="h-7 w-7 fill-current" aria-hidden="true">
@@ -51,7 +51,7 @@ export function MobileAppCta() {
               </button>
             </div>
             
-            <div className="mt-8 flex items-center justify-center gap-4 text-sm text-zinc-400 lg:justify-start">
+            <div className="mt-8 flex items-center justify-start gap-4 text-sm text-zinc-400 lg:justify-start">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="inline-block h-8 w-8 rounded-full border-2 border-zinc-900 bg-zinc-700" />
@@ -78,8 +78,8 @@ export function MobileAppCta() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-lg text-zinc-900 leading-none">UfitGo</h3>
-                    <p className="text-[10px] text-zinc-500 font-medium mt-1">As-salamu alaykum, Ali</p>
+                    <h3 className="font-bold text-base text-zinc-900 leading-none">UfitGo</h3>
+                    <p className="text-[9px] text-zinc-500 font-medium mt-1">As-salamu alaykum, Ali</p>
                   </div>
                   <div className="h-8 w-8 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center overflow-hidden">
                      <span className="text-sm">👤</span>
@@ -115,7 +115,7 @@ export function MobileAppCta() {
                   </div>
                   <div className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border border-zinc-100 shadow-sm">
                     <span className="text-xl">💱</span>
-                    <span className="text-[9px] font-semibold text-zinc-700">Exchange</span>
+                    <span className="text-[9px] font-semibold text-zinc-700">Amenities</span>
                   </div>
                 </div>
 
@@ -138,8 +138,8 @@ export function MobileAppCta() {
                 </div>
                 
                 {/* Featured Packages */}
-                 <div className="mt-1 pb-4">
-                   <div className="flex justify-between items-center mb-2">
+                 <div className="mt-4 pb-4">
+                   <div className="flex justify-between items-center mb-3">
                      <h4 className="font-bold text-xs text-zinc-900">Trending Deals</h4>
                      <span className="text-[10px] font-semibold text-yellow-600">See all</span>
                    </div>
