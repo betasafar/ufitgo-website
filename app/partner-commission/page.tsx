@@ -4,28 +4,8 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ShieldCheck, Target, Calculator, CheckCircle2, DollarSign } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
-
-const packageExamples = [
-  {
-    id: 'umrah',
-    name: 'Umrah Package',
-    packageValue: 3500000,
-    referralFee: 75000,
-  },
-  {
-    id: 'hajj',
-    name: 'Hajj Package',
-    packageValue: 8500000,
-    referralFee: 150000,
-  }
-];
 
 export default function PartnerCommissionPage() {
-  const [activeTab, setActiveTab] = useState('umrah');
-  const activePackage = packageExamples.find(p => p.id === activeTab) || packageExamples[0];
-  const operatorRevenue = activePackage.packageValue - activePackage.referralFee;
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <SiteHeader />
@@ -89,76 +69,45 @@ export default function PartnerCommissionPage() {
                 <div>
                   <h2 className="text-3xl font-bold text-slate-900 mb-4">How it Works</h2>
                   <p className="text-slate-600 mb-8 text-lg">
-                    Below is an <strong className="text-slate-900">illustrative example</strong> of how our commercial split operates when a customer books a package.
+                    We believe in <strong className="text-slate-900">performance-based partnerships</strong>. Instead of rigid fees, our commercial split is tailored to your business model.
                   </p>
                   
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-center gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-slate-700">Customer pays via secure portal</span>
+                      <span className="text-slate-700">Customer pays securely via the UfitGo portal</span>
                     </li>
                     <li className="flex items-center gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-slate-700">Commission is automatically calculated</span>
+                      <span className="text-slate-700">Custom commission split is automatically applied</span>
                     </li>
                     <li className="flex items-center gap-3">
                       <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-slate-700">Net revenue is deposited directly to your bank account</span>
+                      <span className="text-slate-700">Net revenue is instantly deposited to your account</span>
                     </li>
                   </ul>
 
                   <div className="rounded-xl bg-blue-50 p-4 border border-blue-100">
                     <p className="text-sm text-blue-800 leading-relaxed">
-                      <strong>Note:</strong> UfitGo's referral fee is deducted from the package value. Applicable payment processing costs are borne by UfitGo and do not reduce the operator's stated allocation.
+                      <strong>Note:</strong> Applicable payment processing costs are borne by UfitGo and do not reduce the operator's stated revenue allocation.
                     </p>
                   </div>
                 </div>
                 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-                  <div className="flex justify-center gap-2 mb-6">
-                    {packageExamples.map((pkg) => (
-                      <button
-                        key={pkg.id}
-                        onClick={() => setActiveTab(pkg.id)}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                          activeTab === pkg.id 
-                            ? 'bg-slate-900 text-white' 
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        {pkg.name}
-                      </button>
-                    ))}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-center h-full text-center">
+                  <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-900">
+                    <DollarSign className="h-8 w-8" />
                   </div>
-
-                  <div className="text-center mb-6">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Illustrative Example</span>
-                    <h3 className="text-2xl font-bold text-slate-900 mt-2">{activePackage.name}</h3>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                      <span className="text-slate-500">Package Value</span>
-                      <span className="font-semibold text-slate-900">
-                        ₦{activePackage.packageValue.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                      <span className="text-slate-500">UfitGo Referral Fee</span>
-                      <span className="font-semibold text-red-500">
-                        - ₦{activePackage.referralFee.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="font-bold text-slate-900">Operator Revenue</span>
-                      <div className="text-right">
-                        <span className="font-bold text-xl text-primary">
-                          ₦{operatorRevenue.toLocaleString()}
-                        </span>
-                        <p className="text-xs text-slate-500 mt-1 font-medium">Deposited directly to your account</p>
-                      </div>
-                    </div>
-                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Custom Pricing Tiers</h3>
+                  <p className="text-slate-600 mb-6 leading-relaxed">
+                    Hajj and Umrah packages vary greatly. We work closely with our partners to establish fair, percentage-based or tiered commission structures that make sense for both VIP and standard packages.
+                  </p>
+                  <Link 
+                    href="/contact" 
+                    className="inline-flex items-center justify-center rounded-xl bg-primary/10 text-primary px-6 py-3 font-semibold transition-colors hover:bg-primary/20"
+                  >
+                    Contact Us for Pricing Details
+                  </Link>
                 </div>
               </div>
             </div>

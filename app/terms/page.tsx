@@ -46,7 +46,18 @@ export default function TermsPage() {
               All payments made through UfitGo are processed using integrated third-party payment infrastructure. Refund eligibility and timelines are strictly governed by the specific cancellation policy of the independent provider associated with your booked service. UfitGo facilitates the refund process but the decision rests on the provider's predefined terms.
             </p>
 
-            <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">5. Governing Law</h2>
+            <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">5. Booking & Savings Cancellation Policy</h2>
+            <p className="mb-4">
+              <strong>Registration Fees & Initial Deposits:</strong> Unless explicitly stated otherwise by the service operator, all registration fees and initial booking deposits are completely non-refundable. These fees are used immediately to secure your slots and process preliminary logistics.
+            </p>
+            <p className="mb-4">
+              <strong>Target Savings Goals:</strong> If you are actively saving towards a package using a UfitGo Savings Goal (Tier 1 BaaS Account) and you choose to "Break" your goal before reaching the target or maturity date, an administrative penalty fee (typically 1.5%) will be deducted from your savings. The remaining balance will be transferred to your verified external bank account.
+            </p>
+            <p>
+              <strong>Booking Cancellations (Instant Settlement):</strong> Because UfitGo utilizes an instant settlement architecture to pay operators immediately, we cannot process automated refunds. If you need to cancel an active booking, you <strong>must contact UfitGo Support</strong>. Our support team will liaise with the operator to determine if any refund is possible according to their strict cancellation policies.
+            </p>
+
+            <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">6. Governing Law</h2>
             <p>
               These Terms shall be governed and construed in accordance with the laws of the Federal Republic of Nigeria, without regard to its conflict of law provisions.
             </p>
