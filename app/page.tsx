@@ -2,7 +2,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Hero } from "@/components/hero"
 import { WhyUfitGo } from "@/components/why-ufitgo"
 import { ServicesSection } from "@/components/services-section"
-import { FeaturedPackages } from "@/components/featured-packages"
+// import { FeaturedPackages } from "@/components/featured-packages"
 import { HowItWorks } from "@/components/how-it-works"
 import { OperatorCta } from "@/components/operator-cta"
 import { MobileAppCta } from "@/components/mobile-app-cta"
@@ -15,7 +15,7 @@ export default function Page() {
       <SiteHeader transparentOnTop={true} />
       <main>
         <Hero />
-        <FeaturedPackages />
+        {/* <FeaturedPackages /> */}
         <ServicesSection />
         <WhyUfitGo />
         <HowItWorks />

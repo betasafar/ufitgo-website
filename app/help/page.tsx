@@ -40,7 +40,7 @@ export default function SupportPage() {
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Email Support</h3>
                 <p className="text-sm text-slate-500 mb-6">Best for detailed inquiries and sending documents.</p>
                 <a href="mailto:support@ufitgo.com" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                  support@ufitgo.com <ArrowRight className="ml-1 h-4 w-4" />
+                  support@ufitgo.ng <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </div>
 
@@ -52,7 +52,7 @@ export default function SupportPage() {
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Partner Relations</h3>
                 <p className="text-sm text-slate-500 mb-6">For tour operators, agents, and guides partnering with us.</p>
                 <a href="mailto:partners@ufitgo.com" className="inline-flex items-center text-sm font-medium text-[#0a1c12] hover:opacity-80">
-                  partners@ufitgo.com <ArrowRight className="ml-1 h-4 w-4" />
+                  partners@ufitgo.ng <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </div>
 
@@ -63,8 +63,8 @@ export default function SupportPage() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Phone & WhatsApp</h3>
                 <p className="text-sm text-slate-500 mb-6">For urgent issues and immediate assistance during travel.</p>
-                <a href="tel:+2348000000000" className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-700">
-                  +234 800 UFITGO <ArrowRight className="ml-1 h-4 w-4" />
+                <a href="tel:+2348148804448" className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-700">
+                  +234 8148 804 448 <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </div>
             </div>

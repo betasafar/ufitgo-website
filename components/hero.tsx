@@ -73,10 +73,10 @@ export function Hero() {
         </p>
 
         <div className="animate-fade-up delay-400 mt-10 flex w-full flex-col items-center justify-center gap-6 sm:w-auto sm:flex-row">
-          <a href="#packages" className={cn(buttonVariants({ size: "lg" }), "rounded-full h-14 gap-1 px-12 text-base font-semibold w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90")}>
+          {/* <a href="#packages" className={cn(buttonVariants({ size: "lg" }), "rounded-full h-14 gap-1 px-12 text-base font-semibold w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90")}>
             Explore Hajj & Umrah
             <ArrowRight className="h-4 w-4 ml-1" />
-          </a>
+          </a> */}
           <a
             href="/#how-it-works"
             className={cn(buttonVariants({ size: "lg", variant: "outline" }), "rounded-full h-14 px-12 text-base font-semibold w-full sm:w-auto border-zinc-600 bg-transparent text-white hover:bg-zinc-800 hover:text-white")}

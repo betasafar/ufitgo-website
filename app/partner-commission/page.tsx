@@ -103,7 +103,7 @@ export default function PartnerCommissionPage() {
                     Hajj and Umrah packages vary greatly. We work closely with our partners to establish fair, percentage-based or tiered commission structures that make sense for both VIP and standard packages.
                   </p>
                   <Link 
-                    href="/contact" 
+                    href="/help" 
                     className="inline-flex items-center justify-center rounded-xl bg-primary/10 text-primary px-6 py-3 font-semibold transition-colors hover:bg-primary/20"
                   >
                     Contact Us for Pricing Details

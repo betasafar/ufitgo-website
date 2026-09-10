@@ -51,7 +51,7 @@ export default function TermsPage() {
               <strong>Registration Fees & Initial Deposits:</strong> Unless explicitly stated otherwise by the service operator, all registration fees and initial booking deposits are completely non-refundable. These fees are used immediately to secure your slots and process preliminary logistics.
             </p>
             <p className="mb-4">
-              <strong>Target Savings Goals:</strong> If you are actively saving towards a package using a UfitGo Savings Goal (Tier 1 BaaS Account) and you choose to "Break" your goal before reaching the target or maturity date, an administrative penalty fee (typically 1.5%) will be deducted from your savings. The remaining balance will be transferred to your verified external bank account.
+              <strong>Target Savings Goals:</strong> If you are actively saving towards a package using a UfitGo Savings Goal (Tier 1 BaaS Account) and you choose to "Break" your goal before reaching the target or maturity date, an administrative penalty fee (typically 0.9%) will be deducted from your savings. The remaining balance will be transferred to your verified external bank account.
             </p>
             <p>
               <strong>Booking Cancellations (Instant Settlement):</strong> Because UfitGo utilizes an instant settlement architecture to pay operators immediately, we cannot process automated refunds. If you need to cancel an active booking, you <strong>must contact UfitGo Support</strong>. Our support team will liaise with the operator to determine if any refund is possible according to their strict cancellation policies.
