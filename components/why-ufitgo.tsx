@@ -41,10 +41,10 @@ export function WhyUfitGo() {
             </p>
             
             <a
-              href="/#packages"
+              href="/#mobile-app"
               className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
             >
-              Explore Services
+              Get the App
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </ScrollReveal>

@@ -7,7 +7,7 @@ import { HowItWorks } from "@/components/how-it-works"
 import { OperatorCta } from "@/components/operator-cta"
 import { MobileAppCta } from "@/components/mobile-app-cta"
 import { SiteFooter } from "@/components/site-footer"
-import { TargetSavingsCta } from "@/components/target-savings-cta"
+// import { TargetSavingsCta } from "@/components/target-savings-cta"
 
 export default function Page() {
   return (
@@ -19,7 +19,7 @@ export default function Page() {
         <ServicesSection />
         <WhyUfitGo />
         <HowItWorks />
-        <TargetSavingsCta />
+        {/* <TargetSavingsCta /> */}
         <MobileAppCta />
         <OperatorCta />
       </main>
