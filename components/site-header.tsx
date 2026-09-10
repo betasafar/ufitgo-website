@@ -74,7 +74,7 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            {session ? (
+            {/* {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger render={<Button variant="ghost" className={cn("relative h-9 w-9 rounded-full", isTransparent ? "hover:bg-white/20" : "")} />}>
                   <div className={cn("flex h-9 w-9 items-center justify-center rounded-full transition-colors font-bold", isTransparent ? "bg-white/20 text-white" : "bg-secondary text-foreground")}>
@@ -108,9 +108,9 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
               >
                 Sign in
               </Link>
-            )}
-            <a href="/#services" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
-              Explore Services
+            )} */}
+            <a href="/#mobile-app" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
+              Get the App
             </a>
           </div>
 
@@ -164,7 +164,7 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
             </a>
           ))}
           <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
-            {session ? (
+            {/* {session ? (
               <div className="flex flex-col space-y-4 pt-4 border-t border-border">
                 <div className="flex items-center space-x-3 mb-2">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground font-medium">
@@ -201,13 +201,13 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
               >
                 Sign in
               </Link>
-            )}
+            )} */}
             <a
-              href="/#packages"
+              href="/#mobile-app"
               onClick={() => setOpen(false)}
               className={cn(buttonVariants(), "w-full h-12 text-base")}
             >
-              Explore Services
+              Get the App
             </a>
           </div>
         </nav>
