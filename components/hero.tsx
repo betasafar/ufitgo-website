@@ -35,8 +35,8 @@ export function Hero() {
             priority={idx === 0}
             sizes="100vw"
             className={cn(
-              "object-cover mix-blend-screen transition-opacity duration-1000 ease-in-out",
-              currentImage === idx ? "opacity-50" : "opacity-0"
+              "object-cover transition-opacity duration-1000 ease-in-out",
+              currentImage === idx ? "opacity-30" : "opacity-0"
             )}
           />
         ))}
