@@ -49,7 +49,7 @@
 
 :root {
   color-scheme: light;
-  --background: #f7f4eb;
+  --background: #f8f5ee;
   --foreground: #16352f;
   --card: #fffdf9;
   --card-foreground: #16352f;
@@ -59,8 +59,8 @@
   --primary-foreground: #f8f7f3;
   --secondary: #edf6f3;
   --secondary-foreground: #1d433d;
-  --muted: #f3efe8;
-  --muted-foreground: #47615d;
+  --muted: #f2efe7;
+  --muted-foreground: #4a615d;
   --accent: #dcb232;
   --accent-foreground: #1e2a1f;
   --destructive: oklch(0.577 0.245 27.325);
@@ -81,7 +81,13 @@
   --sidebar-accent-foreground: #2c372d;
   --sidebar-border: #dfe7df;
   --sidebar-ring: #115e59;
+  --brand-green-deep: #0b3a35;
+  --brand-green-soft: #e9f7f3;
+  --brand-gold: #dcb232;
+  --brand-gold-soft: #f7f0d4;
+  --brand-ink: #102c29;
 }
+
 
 .dark {
   color-scheme: dark;
@@ -161,6 +167,14 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(circle at top, rgba(220, 178, 50, 0.12), transparent 30%),
+      linear-gradient(180deg, rgba(17, 94, 89, 0.03) 0%, rgba(17, 94, 89, 0) 40%),
+      var(--background);
+  }
+  ::selection {
+    background: rgba(220, 178, 50, 0.28);
+    color: #16352f;
   }
 }
 html { scroll-behavior: smooth; }
