@@ -1,39 +1,44 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 
 const INACTIVITY_TIME = 15 * 60 * 1000 // 15 minutes in milliseconds
+const LAST_ACTIVITY_KEY = "ufitgo_last_user_activity"
 
 export function InactivityTracker() {
-  const { status } = useSession()
+  const { status, data: session } = useSession()
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  const markUserActive = () => {
+    window.localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()))
+  }
+
   useEffect(() => {
-    // Only track inactivity if the user is currently logged in
     if (status !== "authenticated") return
 
     const resetTimer = () => {
+      markUserActive()
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {
-        // Log out the user and redirect to login with a specific reason query param
-        signOut({ callbackUrl: "/login?reason=inactivity" })
+        window.dispatchEvent(
+          new CustomEvent("ufitgo-session-expired", {
+            detail: { reason: "Your session has expired due to inactivity. Please sign in again to continue." },
+          }),
+        )
       }, INACTIVITY_TIME)
     }
 
-    // Initialize timer immediately
     resetTimer()
 
-    const events = ["mousemove", "keydown", "wheel", "touchstart", "click"]
-    
-    // Add event listeners to reset timer on user activity
+    const events = ["mousemove", "keydown", "wheel", "touchstart", "click", "pointerdown", "pointermove"]
     events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }))
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
       events.forEach((event) => window.removeEventListener(event, resetTimer))
     }
-  }, [status])
+  }, [status, session])
 
   return null
 }
