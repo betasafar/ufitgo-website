@@ -16,7 +16,7 @@ import { UfitGoLogo } from "@/components/ufitgo-logo"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { label: "Operators", href: "/operators" },
+  // { label: "Operators", href: "/operators" },
   // { label: "Services", href: "/#services" },
   { label: "Why UfitGo", href: "/#why" },
   { label: "How It Works", href: "/#how-it-works" },
