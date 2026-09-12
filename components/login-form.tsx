@@ -17,6 +17,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const reason = searchParams.get("reason")
   
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -49,16 +50,18 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         }
 
         setError(friendlyError)
+        setIsLoading(false)
       } else {
         if (onSuccess) {
           onSuccess()
         } else {
           router.push(callbackUrl)
         }
+        // Deliberately NOT calling setIsLoading(false) here
+        // so the spinner keeps rolling while the redirect happens.
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
-    } finally {
       setIsLoading(false)
     }
   }
@@ -72,6 +75,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           Sign in to your UfitGo account.
         </p>
       </div>
+
+      {reason === "inactivity" && (
+        <div className="mb-4 p-3 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-xl text-center">
+          You were logged out due to inactivity. Please sign in again.
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl text-center">
