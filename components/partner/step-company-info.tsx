@@ -38,7 +38,7 @@ export function StepCompanyInfo({ partnerType, formData, updateFormData, onNext,
   if (isGuide) {
     isValid = formData.country.trim() !== "" && formData.companyName.trim() !== "" && formData.officeAddress.trim() !== ""
   } else {
-    const isUniversalValid = formData.country.trim() !== "" && formData.companyName.trim() !== "" && formData.rcNumber.trim() !== "" && formData.officeAddress.trim() !== ""
+    const isUniversalValid = formData.country.trim() !== "" && formData.companyName.trim() !== "" && formData.cacNumber.trim() !== "" && formData.officeAddress.trim() !== ""
     
     let isDynamicValid = true
     if (partnerType === "tour-operator" && formData.country === "Nigeria") {
@@ -163,8 +163,8 @@ export function StepCompanyInfo({ partnerType, formData, updateFormData, onNext,
               <label className="text-sm font-medium">{isSaudi ? "Commercial Registration (CR) Number" : "RC Number (CAC)"} <span className="text-red-500">*</span></label>
               <input 
                 type="text" 
-                value={formData.rcNumber}
-                onChange={(e) => updateFormData({ rcNumber: e.target.value })}
+                value={formData.cacNumber}
+                onChange={(e) => updateFormData({ cacNumber: e.target.value })}
                 placeholder={isSaudi ? "e.g. 1010123456" : "e.g. RC123456"}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
               />

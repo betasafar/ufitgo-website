@@ -8,6 +8,7 @@ interface StepUploadDocumentsProps {
   country: string
   onBack: () => void
   onSubmit: () => void
+  isSubmitting?: boolean
 }
 
 function UploadBox({ label, required = false, icon: Icon, hint }: { label: string, required?: boolean, icon: any, hint: string }) {
@@ -39,7 +40,7 @@ function UploadBox({ label, required = false, icon: Icon, hint }: { label: strin
   )
 }
 
-export function StepUploadDocuments({ partnerType, country, onBack, onSubmit }: StepUploadDocumentsProps) {
+export function StepUploadDocuments({ partnerType, country, onBack, onSubmit, isSubmitting }: StepUploadDocumentsProps) {
   const [agreed, setAgreed] = useState(false)
   const isSaudi = country === "Saudi Arabia"
   const isGuide = partnerType === "tour-guide"
@@ -149,10 +150,10 @@ export function StepUploadDocuments({ partnerType, country, onBack, onSubmit }: 
         </button>
         <button
           onClick={onSubmit}
-          disabled={!agreed}
+          disabled={!agreed || isSubmitting}
           className="inline-flex items-center justify-center rounded-md bg-[#2a7a4f] px-6 py-2.5 text-sm font-medium text-white shadow transition-colors hover:bg-[#205d3b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          🚀 Submit Application
+          {isSubmitting ? "Submitting..." : "🚀 Submit Application"}
         </button>
       </div>
     </div>
