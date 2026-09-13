@@ -59,10 +59,10 @@ export function Hero() {
           <span className="flex h-1.5 w-1.5 rounded-full bg-yellow-500" />
           Nigeria&apos;s digital marketplace &amp; booking platform
         </span>
-        <span className="animate-fade-up delay-100 inline-flex items-center gap-2 rounded-full border border-emerald-900 bg-emerald-950/50 px-3 py-1.5 text-xs font-medium text-emerald-400 backdrop-blur-md">
+        {/* <span className="animate-fade-up delay-100 inline-flex items-center gap-2 rounded-full border border-emerald-900 bg-emerald-950/50 px-3 py-1.5 text-xs font-medium text-emerald-400 backdrop-blur-md">
           <ShieldCheck className="h-4 w-4" />
           Target savings securely held via trusted tier-1 banking partners
-        </span>
+        </span> */}
 
         <h1 className="animate-fade-up delay-200 mt-8 text-balance font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl max-w-4xl mx-auto">
             Discover. Book. <span className="text-yellow-500">Experience.</span>
