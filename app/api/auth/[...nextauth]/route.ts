@@ -18,6 +18,27 @@ const API_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL
   ? `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api` 
   : (process.env.NEXT_PUBLIC_USER_API_URL || "http://localhost:8080/api");
 
+async function refreshAccessToken(token: any) {
+  try {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: token.refreshToken }),
+    });
+    const refreshed = await response.json();
+    if (!response.ok || !refreshed?.token) throw new Error('Refresh failed');
+    return {
+      ...token,
+      accessToken: refreshed.token,
+      refreshToken: refreshed.refreshToken,
+      accessTokenExpires: Date.now() + 60 * 60 * 1000,
+      error: undefined,
+    };
+  } catch {
+    return { ...token, error: 'RefreshAccessTokenError' };
+  }
+}
+
 export const authOptions: any = {
   providers: [
     GoogleProvider({
@@ -63,7 +84,7 @@ export const authOptions: any = {
           
           if (res.ok && data?.success && data?.user) {
             // Include backend JWT token in user object so it gets passed to jwt callback
-            return { ...data.user, token: data.token }
+            return { ...data.user, token: data.token, refreshToken: data.refreshToken }
           }
           
           throw new Error(data?.message || "Invalid credentials")
@@ -91,6 +112,8 @@ export const authOptions: any = {
             const data = await res.json()
             if (res.ok && data.success) {
               token.accessToken = data.token
+              token.refreshToken = data.refreshToken
+              token.accessTokenExpires = Date.now() + 60 * 60 * 1000
               token.id = data.user.id
               token.email = data.user.email
               token.firstName = data.user.firstName
@@ -108,6 +131,8 @@ export const authOptions: any = {
         } else if (account.provider === "credentials") {
           // Credentials login already fetched everything in authorize()
           token.accessToken = user.token
+          token.refreshToken = user.refreshToken
+          token.accessTokenExpires = Date.now() + 60 * 60 * 1000
           token.id = user.id
           token.email = user.email
           token.firstName = user.firstName
@@ -118,6 +143,10 @@ export const authOptions: any = {
           token.isVerified = user.isVerified
         }
       }
+      if (!user && token.refreshToken && token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+      if (!user && token.refreshToken) return refreshAccessToken(token);
       return token
     },
     async session({ session, token }: any) {
