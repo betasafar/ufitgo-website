@@ -21,13 +21,15 @@ export default function PartnerPage() {
               Join Nigeria's leading marketplace for Hajj, Umrah, and Ziyarah services. Connect directly with pilgrims, manage your offerings, and build your reputation.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                href="/partner/apply" 
+              <a 
+                href="https://partner.ufitgo.ng/login" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 w-full sm:w-auto shadow-lg"
               >
                 Apply to be a Partner
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
               <Link 
                 href="/partner-commission" 
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-white/20 border border-white/20 w-full sm:w-auto"
@@ -113,12 +115,14 @@ export default function PartnerPage() {
                   <p className="text-slate-600 mb-8">
                     Join hundreds of independent providers already using UfitGo to connect with customers.
                   </p>
-                  <Link 
-                    href="/partner/apply" 
+                  <a 
+                    href="https://partner.ufitgo.ng/login" 
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
                   >
                     Start Your Application
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
