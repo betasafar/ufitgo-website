@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { getSignOutCallbackUrl } from "@/lib/auth-navigation"
 
 const sidebarSections = [
   {
@@ -167,7 +168,7 @@ export function DashboardSidebarContent() {
             </Button>
             <Button 
               className="flex-1 h-12 text-base font-bold rounded-xl shadow-md hover:shadow-lg transition-all bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => signOut({ callbackUrl: getSignOutCallbackUrl() })}
             >
               Yes, Sign out
             </Button>

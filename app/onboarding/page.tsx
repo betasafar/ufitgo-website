@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UfitGoLogo } from "@/components/ufitgo-logo"
+import { getSignOutCallbackUrl } from "@/lib/auth-navigation"
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession()
@@ -19,7 +20,7 @@ export default function OnboardingPage() {
 
   // If session is broken (missing user ID), force them to log out and try again
   if (session && !session.user?.id) {
-    signOut({ callbackUrl: "/login?error=SessionExpired" })
+    signOut({ callbackUrl: getSignOutCallbackUrl("/login?error=SessionExpired") })
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

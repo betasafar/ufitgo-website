@@ -98,6 +98,10 @@ export const authOptions: any = {
     strategy: "jwt",
   },
   callbacks: {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      const { resolveAuthRedirect } = await import("@/lib/auth-navigation")
+      return resolveAuthRedirect(url, baseUrl)
+    },
     async jwt({ token, user, account }: any) {
       // Initial sign in
       if (account && user) {
