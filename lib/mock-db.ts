@@ -21,7 +21,6 @@ export type BookingRecord = {
   status: BookingStatus
   createdAt: string
   bookingRef?: string
-  passportAssistanceRequested?: boolean
 }
 
 // ----------------------------------------------------
@@ -105,19 +104,6 @@ export function processInstallmentPayment(id: string, amount: number): BookingRe
   })
 
   return bookings[index]
-}
-
-export function requestPassportAssistance(bookingId: string): BookingRecord | null {
-  const existingStr = localStorage.getItem("ufitgo_bookings")
-  if (!existingStr) return null
-
-  const existing: BookingRecord[] = JSON.parse(existingStr)
-  const index = existing.findIndex((b) => b.id === bookingId)
-  if (index === -1) return null
-
-  existing[index].passportAssistanceRequested = true
-  localStorage.setItem("ufitgo_bookings", JSON.stringify(existing))
-  return existing[index]
 }
 
 // ----------------------------------------------------

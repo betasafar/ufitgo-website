@@ -6,7 +6,7 @@ import PaystackPop from '@paystack/inline-js'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession } from "next-auth/react"
 import { formatNaira } from "@/lib/packages"
-import { ArrowLeft, CreditCard, ReceiptText, ShieldCheck, CheckCircle2, Clock, Wallet, Phone, MessageCircle, BadgeCheck, FileText, Image as ImageIcon, Upload, IdCard, HelpCircle, Loader2 } from "lucide-react"
+import { ArrowLeft, CreditCard, ReceiptText, ShieldCheck, CheckCircle2, Clock, Wallet, Phone, MessageCircle, BadgeCheck, FileText, Image as ImageIcon, Upload, IdCard, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,12 +17,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { PassportAssistanceModal } from "@/components/passport-assistance-modal"
 export default function BookingDetailsPage({ params }: { params: any }) {
   const router = useRouter()
   const { data: session } = useSession()
   const [payModalOpen, setPayModalOpen] = useState(false)
-  const [assistanceModalOpen, setAssistanceModalOpen] = useState(false)
   const [installmentAmount, setInstallmentAmount] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null)
@@ -415,33 +413,13 @@ export default function BookingDetailsPage({ params }: { params: any }) {
                   isDeleting={deletingDocType === "passport"}
                   onUpload={(type: string, file: File) => uploadMutation.mutate({ documentType: type, file })}
                   onDelete={(type: string) => deleteMutation.mutate(type)}
-                  hideUpload={booking.passportAssistanceRequested}
                   noBorder
                 />
-                
-                {booking.passportAssistanceRequested ? (
-                  <div className="bg-blue-50/50 border-t border-blue-100 p-3 px-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-blue-800 text-sm">
-                      <ShieldCheck className="h-4 w-4 shrink-0 text-blue-500" />
-                      <span className="font-semibold">Assistance Requested</span>
-                    </div>
-                    <span className="text-xs text-blue-600 font-medium bg-blue-100 px-2 py-1 rounded-md">Processing</span>
-                  </div>
-                ) : (
-                  <div className="bg-blue-50/50 border-t border-blue-100 p-3 px-4 flex items-start sm:items-center justify-between flex-col sm:flex-row gap-3">
-                    <div className="flex items-center gap-2 text-blue-800 text-sm">
-                      <HelpCircle className="h-4 w-4 shrink-0 text-blue-500" />
-                      <span>Don't have an International Passport?</span>
-                    </div>
-                    <Button 
-                      variant="link" 
-                      className="h-auto p-0 text-blue-600 hover:text-blue-800 font-semibold text-sm"
-                      onClick={() => setAssistanceModalOpen(true)}
-                    >
-                      Get Assistance
-                    </Button>
-                  </div>
-                )}
+
+                <div className="bg-blue-50/50 border-t border-blue-100 p-3 px-4 flex items-center gap-2 text-blue-800 text-sm">
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-blue-500" />
+                  <span>Ensure at least 6 months validity remains before your travel date.</span>
+                </div>
               </div>
 
               <DocumentRow 
@@ -660,17 +638,6 @@ export default function BookingDetailsPage({ params }: { params: any }) {
           </form>
         </DialogContent>
       </Dialog>
-
-      {booking && (
-        <PassportAssistanceModal 
-          isOpen={assistanceModalOpen}
-          onClose={() => setAssistanceModalOpen(false)}
-          bookingId={booking.id}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
-          }}
-        />
-      )}
     </div>
   )
 }
