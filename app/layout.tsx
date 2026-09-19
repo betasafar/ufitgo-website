@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   keywords: ['Hajj', 'Umrah', 'Pilgrimage', 'Travel packages', 'Hajj agency Nigeria', 'Umrah deals', 'Islamic travel', 'Book Umrah online', 'UfitGo'],
   authors: [{ name: 'UfitGo' }],
   creator: 'UfitGo',
-  generator: 'Powered by Betaday Losgistics',
+  generator: 'UfitGo',
   openGraph: {
     type: 'website',
     locale: 'en_NG',
