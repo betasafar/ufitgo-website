@@ -7,11 +7,11 @@ const features = [
     description: "Every package and travel operator is strictly vetted and verified against national licensing boards.",
     icon: <ShieldCheck className="h-6 w-6 text-primary" />,
   },
-  {
-    title: "Secure Tier-1 Banking",
-    description: "Your bookings and savings are securely held in trust via regulated banking partners, ensuring maximum financial protection.",
-    icon: <UserCheck className="h-6 w-6 text-primary" />,
-  },
+  // {
+  //   title: "Secure Tier-1 Banking",
+  //   description: "Your bookings and savings are securely held in trust via regulated banking partners, ensuring maximum financial protection.",
+  //   icon: <UserCheck className="h-6 w-6 text-primary" />,
+  // },
   {
     title: "Complete Travel Ecosystem",
     description: "From visa assistance to in-country logistics, manage your entire journey confidently from a single platform.",
