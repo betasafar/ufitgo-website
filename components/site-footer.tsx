@@ -15,6 +15,7 @@ const columns = [
     links: [
       { label: "About", href: "/about" },
       { label: "Trust & Verification", href: "/trust" },
+      { label: "Shariah Approach", href: "/shariah" },
       { label: "FAQ", href: "/faq" },
       { label: "Contact", href: "/help" },
     ],

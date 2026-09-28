@@ -39,7 +39,7 @@ export default function SupportPage() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Email Support</h3>
                 <p className="text-sm text-slate-500 mb-6">Best for detailed inquiries and sending documents.</p>
-                <a href="mailto:support@ufitgo.com" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                <a href="mailto:support@ufitgo.ng" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
                   support@ufitgo.ng <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </div>
@@ -51,7 +51,7 @@ export default function SupportPage() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Partner Relations</h3>
                 <p className="text-sm text-slate-500 mb-6">For tour operators, agents, and guides partnering with us.</p>
-                <a href="mailto:partners@ufitgo.com" className="inline-flex items-center text-sm font-medium text-[#0a1c12] hover:opacity-80">
+                <a href="mailto:partners@ufitgo.ng" className="inline-flex items-center text-sm font-medium text-[#0a1c12] hover:opacity-80">
                   partners@ufitgo.ng <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
               </div>

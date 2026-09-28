@@ -65,8 +65,8 @@ export default function TermsPage() {
             <div className="mt-16 p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
               <h3 className="font-semibold text-lg text-slate-900 mb-2">Legal Enquiries</h3>
               <p className="text-slate-600 mb-4">Contact our legal team for any clarifications on these terms.</p>
-              <a href="mailto:legal@ufitgo.com" className="inline-flex items-center justify-center rounded-full bg-white border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
-                legal@ufitgo.com
+              <a href="mailto:legal@ufitgo.ng" className="inline-flex items-center justify-center rounded-full bg-white border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
+                legal@ufitgo.ng
               </a>
             </div>
           </div>

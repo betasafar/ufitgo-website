@@ -72,7 +72,7 @@ export default function PrivacyPage() {
             <div className="mt-16 p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
               <h3 className="font-semibold text-lg text-slate-900 mb-2">Have Questions?</h3>
               <p className="text-slate-600 mb-4">Our privacy team is available to address any concerns.</p>
-              <a href="mailto:privacy@ufitgo.com" className="inline-flex items-center justify-center rounded-full bg-white border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
+              <a href="mailto:privacy@ufitgo.ng" className="inline-flex items-center justify-center rounded-full bg-white border border-slate-200 px-6 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition-colors hover:bg-slate-50">
                 Contact Privacy Team
               </a>
             </div>

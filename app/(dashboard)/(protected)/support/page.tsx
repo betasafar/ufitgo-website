@@ -44,12 +44,12 @@ export default function SupportPage() {
               <p className="text-sm text-muted-foreground font-medium">Get instant help from our agents.</p>
             </a>
             
-            <a href="mailto:support@ufitgo.com" className="group p-6 bg-card border border-border rounded-3xl hover:border-primary/50 transition-all shadow-sm block">
+            <a href="mailto:support@ufitgo.ng" className="group p-6 bg-card border border-border rounded-3xl hover:border-primary/50 transition-all shadow-sm block">
               <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Mail className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg mb-1">Email Us</h3>
-              <p className="text-sm text-muted-foreground font-medium">support@ufitgo.com</p>
+              <p className="text-sm text-muted-foreground font-medium">support@ufitgo.ng</p>
             </a>
             
           </div>

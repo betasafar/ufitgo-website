@@ -132,7 +132,7 @@ export function MultiStepForm() {
       // If we don't have an email, use a temporary one based on phone for now since email is required by backend
       if (!payload.email) {
         const phoneToUse = formData.companyPhone || formData.directorPhone || "0000000000"
-        payload.email = `${phoneToUse.replace(/\D/g, '')}@temp.ufitgo.com`
+        payload.email = `${phoneToUse.replace(/\D/g, '')}@temp.ufitgo.ng`
       }
 
       const apiUrl = process.env.NEXT_PUBLIC_API_GATEWAY_URL || "https://api.ufitgo.ng"
