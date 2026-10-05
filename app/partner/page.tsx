@@ -22,7 +22,7 @@ export default function PartnerPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
-                href="https://partner.ufitgo.ng/login" 
+                href="https://partner.ufitgo.ng/signup"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 w-full sm:w-auto shadow-lg"
@@ -116,7 +116,7 @@ export default function PartnerPage() {
                     Join hundreds of independent providers already using UfitGo to connect with customers.
                   </p>
                   <a 
-                    href="https://partner.ufitgo.ng/login" 
+                    href="https://partner.ufitgo.ng/signup"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
