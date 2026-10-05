@@ -34,7 +34,7 @@ export function WhyUfitGo() {
           <ScrollReveal className="lg:w-1/2">
             <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">Why UfitGo</p>
             <h2 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-6">
-              Don't just travel. GO with absolute security and verified partners.
+              Don't just travel. Travel with absolute security and verified partners.
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8 text-pretty">
               Booking travel logistics and essential services should be seamless and safe. UfitGo guarantees peace of mind by partnering exclusively with NAHCON-licensed providers and securing your funds through regulated tier-1 banking infrastructure.

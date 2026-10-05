@@ -5,6 +5,7 @@ import { RetryButton } from "@/components/retry-button"
 import { revalidatePackages } from "@/app/actions"
 import { fetchPublicPackages } from "@/lib/api"
 import { type Package } from "@/lib/packages"
+import { resolvePackageImage } from "@/lib/package-image"
 
 export async function FeaturedPackages() {
   let packages: Package[] = []
@@ -24,8 +25,13 @@ export async function FeaturedPackages() {
       departureDate: apiPkg.departureDate,
       departureCity: apiPkg.departingFrom?.split(',')[0] || "Unknown",
       highlights: apiPkg.inclusions || [],
-      heroImage: apiPkg.images?.[0] || "/placeholder.svg",
-      cardImage: apiPkg.images?.[0] || "/placeholder.svg",
+      heroImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title, apiPkg.slug),
+      cardImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title, apiPkg.slug),
+      capacity: apiPkg.capacity == null ? undefined : Number(apiPkg.capacity),
+      booked: apiPkg.booked == null ? undefined : Number(apiPkg.booked),
+      remainingSlots: apiPkg.remainingSlots == null ? undefined : Number(apiPkg.remainingSlots),
+      salesStatus: apiPkg.salesStatus,
+      availabilityStatus: apiPkg.availabilityStatus,
     })) || []
   } catch (e) {
     error = true

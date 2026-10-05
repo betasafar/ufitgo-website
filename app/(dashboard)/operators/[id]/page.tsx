@@ -1,26 +1,28 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ShieldCheck, MapPin, Briefcase, Star, MessageCircle, ChevronLeft } from "lucide-react"
+import { ShieldCheck, MapPin, Star, ChevronLeft } from "lucide-react"
 import { fetchOperatorDetails } from "@/lib/api"
 import { PackageCard } from "@/components/package-card"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { WhatsappAction } from "@/components/whatsapp-action"
+import { resolvePackageImage } from "@/lib/package-image"
 
 export const revalidate = 3600 // Revalidate every hour
 
 export default async function OperatorDetailsPage({
   params,
-}: {
-  params: { id: string }
-}) {
+}: Readonly<{
+  params: Promise<{ id: string }>
+}>) {
   let operatorDetails
+  const { id } = await params
 
   try {
-    const res = await fetchOperatorDetails(params.id)
+    const res = await fetchOperatorDetails(id)
     operatorDetails = res.data
-  } catch (error) {
+  } catch {
     notFound()
   }
 
@@ -41,10 +43,14 @@ export default async function OperatorDetailsPage({
   }
 
   const isVerified = operatorDetails.verificationStatus === 'approved' || operatorDetails.verified
+  const yearsOfExperience = Number(operatorDetails.yearsOfExperience)
+  const hasKnownExperience = Number.isFinite(yearsOfExperience) && yearsOfExperience > 0
+  const hasCacNumber = Boolean(operatorDetails.cacNumber?.trim())
+  const hasLocation = Boolean(operatorDetails.location?.trim())
   
   // Try to format packages if they exist. The mobile app uses operatorDetails.packages.
   const packages = (operatorDetails.packages || []).map((apiPkg: any) => ({
-    id: apiPkg.id?.toString() || Math.random().toString(),
+    id: String(apiPkg.id ?? `${operatorDetails.id}-${apiPkg.slug || apiPkg.title || apiPkg.name || "package"}`),
     name: apiPkg.title || apiPkg.name,
     type: apiPkg.type || "Umrah",
     category: apiPkg.serviceLevel || apiPkg.category || "Standard",
@@ -52,13 +58,18 @@ export default async function OperatorDetailsPage({
       name: nameToDisplay,
       verified: isVerified
     },
-    priceFrom: parseFloat(apiPkg.price || 0),
+    priceFrom: Number.parseFloat(apiPkg.price || 0),
     duration: apiPkg.duration || 7,
     departureDate: apiPkg.departureDate || "Flexible",
     departureCity: apiPkg.departingFrom?.split(',')[0] || "Unknown",
     highlights: apiPkg.inclusions || [],
-    heroImage: apiPkg.images?.[0] || "/placeholder.svg",
-    cardImage: apiPkg.images?.[0] || "/placeholder.svg",
+    heroImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title || apiPkg.name, apiPkg.slug),
+    cardImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title || apiPkg.name, apiPkg.slug),
+    capacity: apiPkg.capacity == null ? undefined : Number(apiPkg.capacity),
+    booked: apiPkg.booked == null ? undefined : Number(apiPkg.booked),
+    remainingSlots: apiPkg.remainingSlots == null ? undefined : Number(apiPkg.remainingSlots),
+    salesStatus: apiPkg.salesStatus,
+    availabilityStatus: apiPkg.availabilityStatus,
   }))
 
   const UFITGO_WHATSAPP = "+2348148804448"
@@ -89,24 +100,26 @@ export default async function OperatorDetailsPage({
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         {/* Profile Section */}
-        <div className="relative -mt-16 sm:-mt-20 flex flex-col items-center sm:items-start sm:flex-row gap-6">
-          <div className="relative h-32 w-32 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-full border-4 border-background bg-zinc-100 flex items-center justify-center shadow-xl">
+        <div className="relative -mt-16 flex flex-col items-center gap-6 sm:-mt-20 sm:flex-row sm:items-start">
+          <div className="relative flex h-32 w-32 shrink-0 items-center justify-center rounded-full border-4 border-background bg-zinc-100 shadow-xl sm:h-40 sm:w-40">
             {hasValidImage ? (
-              <Image
-                src={operatorDetails.logo!}
-                alt={`${nameToDisplay} logo`}
-                fill
-                sizes="160px"
-                className="object-cover"
-              />
+              <div className="absolute inset-0 overflow-hidden rounded-full">
+                <Image
+                  src={operatorDetails.logo!}
+                  alt={`${nameToDisplay} logo`}
+                  fill
+                  sizes="160px"
+                  className="object-cover"
+                />
+              </div>
             ) : (
-              <span className="text-4xl sm:text-5xl font-bold text-primary/40 uppercase">
+              <span className="text-4xl font-bold uppercase text-primary sm:text-5xl">
                 {getInitials(nameToDisplay)}
               </span>
             )}
             
             {isVerified && (
-              <div className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background flex items-center justify-center shadow-sm">
+              <div className="absolute -bottom-1 -right-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-background shadow-sm">
                 <ShieldCheck className="h-6 w-6 text-blue-500" />
               </div>
             )}
@@ -118,10 +131,12 @@ export default async function OperatorDetailsPage({
             </h1>
             
             <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-6">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{operatorDetails.location || 'Nigeria'}</span>
-              </div>
+              {hasLocation && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">{operatorDetails.location}</span>
+                </div>
+              )}
               
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Star className="h-4 w-4 fill-primary text-primary" />
@@ -179,16 +194,27 @@ export default async function OperatorDetailsPage({
               <dl className="space-y-4">
                 <div>
                   <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">Years Active</dt>
-                  <dd className="text-lg font-medium text-foreground">{operatorDetails.yearsOfExperience || 0} Years</dd>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Since {operatorDetails.foundedAt || new Date(operatorDetails.memberSince || Date.now()).getFullYear()}
-                  </p>
+                  <dd className="text-lg font-medium text-foreground">{hasKnownExperience ? `${yearsOfExperience} Years` : "5+ Years"}</dd>
                 </div>
-                <div className="border-t border-border pt-4">
-                  <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">CAC Number</dt>
-                  <dd className="text-lg font-medium text-foreground">{operatorDetails.cacNumber || 'N/A'}</dd>
-                  <p className="text-xs text-muted-foreground mt-0.5">Corporate Registered</p>
-                </div>
+                {operatorDetails.activePackagesCount != null && (
+                  <div className="border-t border-border pt-4">
+                    <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">Active Packages</dt>
+                    <dd className="text-lg font-medium text-foreground">{operatorDetails.activePackagesCount}</dd>
+                  </div>
+                )}
+                {operatorDetails.tier && (
+                  <div className="border-t border-border pt-4">
+                    <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">Partnership Tier</dt>
+                    <dd className="text-lg font-medium text-foreground">{operatorDetails.tier}</dd>
+                  </div>
+                )}
+                {hasCacNumber && (
+                  <div className="border-t border-border pt-4">
+                    <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">CAC Number</dt>
+                    <dd className="text-lg font-medium text-foreground">{operatorDetails.cacNumber}</dd>
+                    <p className="text-xs text-muted-foreground mt-0.5">Corporate Registered</p>
+                  </div>
+                )}
                 {operatorDetails.nahconId && (
                   <div className="border-t border-border pt-4">
                     <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">NAHCON License</dt>
@@ -196,11 +222,13 @@ export default async function OperatorDetailsPage({
                     <p className="text-xs text-muted-foreground mt-0.5">Officially Licensed</p>
                   </div>
                 )}
-                <div className="border-t border-border pt-4">
-                  <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">Office Location</dt>
-                  <dd className="text-lg font-medium text-foreground">{operatorDetails.location || 'Nigeria'}</dd>
-                  <p className="text-xs text-muted-foreground mt-0.5">{operatorDetails.address || 'Main Office'}</p>
-                </div>
+                {hasLocation && (
+                  <div className="border-t border-border pt-4">
+                    <dt className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-1">Office Location</dt>
+                    <dd className="text-lg font-medium text-foreground">{operatorDetails.location}</dd>
+                    {operatorDetails.address && <p className="text-xs text-muted-foreground mt-0.5">{operatorDetails.address}</p>}
+                  </div>
+                )}
               </dl>
             </ScrollReveal>
 

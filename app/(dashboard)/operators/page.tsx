@@ -13,14 +13,19 @@ export default async function OperatorsPage() {
       id: apiOp.id,
       name: apiOp.name,
       companyName: apiOp.companyName,
-      logo: apiOp.logo,
+      logo: apiOp.logo || apiOp.logoUrl,
       verified: apiOp.verificationStatus === 'approved',
       verificationStatus: apiOp.verificationStatus,
       description: apiOp.description || "",
-      rating: apiOp.trustScore ? Number(apiOp.trustScore) / 20 : 4.5,
+      rating: Number(apiOp.trustScore || 0) / 20,
       reviews: 0,
       trustScore: apiOp.trustScore,
-      yearsOfExperience: apiOp.yearsOfExperience
+      yearsOfExperience: apiOp.yearsOfExperience,
+      location: apiOp.location,
+      activePackagesCount: apiOp.activePackagesCount,
+      totalBookings: apiOp.totalBookings,
+      tier: apiOp.tier,
+      phone: apiOp.phone,
     })) || []
   } catch (e) {
     console.error("Failed to fetch operators for explore page", e)

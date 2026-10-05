@@ -65,10 +65,7 @@ export function SessionReauthModal() {
         setReason(detail.reason)
       }
 
-      const lastActivityAt = Number(window.localStorage.getItem(LAST_ACTIVITY_KEY) || Date.now())
-      const idleForTooLong = Date.now() - lastActivityAt >= INACTIVITY_TIMEOUT_MS
-
-      if (isProtectedRoute && idleForTooLong) {
+      if (isProtectedRoute) {
         setIsOpen(true)
       }
     }

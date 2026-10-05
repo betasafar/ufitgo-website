@@ -1,31 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Menu, X, User as UserIcon, LogOut, Loader2 } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import Link from "next/link"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { useSession, signOut, signIn } from "next-auth/react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { buttonVariants } from "@/components/ui/button"
+import { useSession } from "next-auth/react"
 import { UfitGoLogo } from "@/components/ufitgo-logo"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  // { label: "Operators", href: "/operators" },
+  { label: "Packages", href: "/packages" },
+  { label: "Operators", href: "/operators" },
   // { label: "Services", href: "/#services" },
   { label: "Why UfitGo", href: "/#why" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Become a Partner", href: "/#operators" },
 ]
 
-export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: boolean }) {
+export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentOnTop?: boolean }>) {
   const [open, setOpen] = useState(false)
-  const [isSigningIn, setIsSigningIn] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const { data: session } = useSession()
 
@@ -74,43 +67,20 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            {/* {session ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button variant="ghost" className={cn("relative h-9 w-9 rounded-full", isTransparent ? "hover:bg-white/20" : "")} />}>
-                  <div className={cn("flex h-9 w-9 items-center justify-center rounded-full transition-colors font-bold", isTransparent ? "bg-white/20 text-white" : "bg-secondary text-foreground")}>
-                    {(session.user as any)?.firstName?.charAt(0) || "U"}
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      <p className="font-medium">{(session.user as any)?.firstName} {(session.user as any)?.lastName}</p>
-                      {session.user?.email && <p className="text-sm text-muted-foreground">{session.user.email}</p>}
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })} className="text-red-500 cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link 
-                href="/login"
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "rounded-full h-10 px-6 font-semibold transition-all duration-300",
-                  isTransparent 
-                    ? "border-white/30 text-white hover:bg-white/10 bg-transparent" 
-                    : "border-zinc-600 bg-transparent hover:bg-secondary text-foreground"
-                )} 
-              >
-                Sign in
-              </Link>
-            )} */}
-            <a href="/#mobile-app" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
-              Get the App
+            <Link
+              href={session ? "/dashboard" : "/login"}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full h-10 px-6 font-semibold transition-all duration-300",
+                isTransparent
+                  ? "border-white/30 text-white hover:bg-white/10 bg-transparent"
+                  : "border-zinc-600 bg-transparent hover:bg-secondary text-foreground"
+              )}
+            >
+              {session ? "My dashboard" : "Sign in"}
+            </Link>
+            <a href="/packages" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
+              Explore Packages
             </a>
           </div>
 
@@ -164,50 +134,22 @@ export function SiteHeader({ transparentOnTop = false }: { transparentOnTop?: bo
             </a>
           ))}
           <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
-            {/* {session ? (
-              <div className="flex flex-col space-y-4 pt-4 border-t border-border">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground font-medium">
-                    {(session?.user as any)?.firstName?.charAt(0) || "U"}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{(session?.user as any)?.firstName} {(session?.user as any)?.lastName}</span>
-                    <span className="text-xs text-muted-foreground">{session.user?.email}</span>
-                  </div>
-                </div>
-                <Link 
-                  href="/dashboard"
-                  className="flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-                  onClick={() => setOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Button 
-                  variant="outline"
-                  className="w-full justify-start text-muted-foreground"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
-                  Sign out
-                </Button>
-              </div>
-            ) : (
-              <Link 
-                href="/login"
-                onClick={() => setOpen(false)}
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "w-full bg-transparent h-12 text-base flex items-center justify-center"
-                )} 
-              >
-                Sign in
-              </Link>
-            )} */}
+            <Link
+              href={session ? "/dashboard" : "/login"}
+              onClick={() => setOpen(false)}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "w-full bg-transparent h-12 text-base flex items-center justify-center"
+              )}
+            >
+              {session ? "My dashboard" : "Sign in"}
+            </Link>
             <a
-              href="/#mobile-app"
+              href="/packages"
               onClick={() => setOpen(false)}
               className={cn(buttonVariants(), "w-full h-12 text-base")}
             >
-              Get the App
+              Explore Packages
             </a>
           </div>
         </nav>

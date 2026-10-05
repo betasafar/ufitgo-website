@@ -1,13 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { useQuery } from '@tanstack/react-query'
 import Link from "next/link"
 import { formatNaira } from "@/lib/packages"
-import { CalendarDays, Users, ChevronRight, Clock, MapPin, Loader2 } from "lucide-react"
+import { CalendarDays, Users, ChevronRight, Clock } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { getBookingStatusPresentation, isCancelledBooking, matchesBookingFilter } from "@/lib/booking"
+import { type Booking, type BookingFilter } from "@/types/booking"
 
 export default function BookingsPage() {
   const { data: session } = useSession()
+  const [selectedFilter, setSelectedFilter] = useState<BookingFilter>("ALL")
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['bookings'],
@@ -20,6 +24,12 @@ export default function BookingsPage() {
           "Content-Type": "application/json",
         }
       })
+      if (res.status === 401) {
+        window.dispatchEvent(new CustomEvent("ufitgo-session-expired", {
+          detail: { reason: "Your session expired. Confirm your password to continue viewing your bookings." },
+        }))
+        throw new Error("Your session has expired")
+      }
       if (!res.ok) throw new Error("Failed to fetch bookings")
       return res.json()
     },
@@ -41,7 +51,15 @@ export default function BookingsPage() {
   }
 
   // Ensure bookings is an array
-  const safeBookings = Array.isArray(bookings) ? bookings : []
+  const safeBookings = (Array.isArray(bookings) ? bookings : []) as Booking[]
+  const activeBookings = safeBookings.filter((booking) => !isCancelledBooking(booking))
+  const filters: Array<{ id: BookingFilter; label: string }> = [
+    { id: "ALL", label: "All" },
+    { id: "ACTION_REQUIRED", label: "Action Required" },
+    { id: "IN_PROGRESS", label: "In Progress" },
+    { id: "COMPLETED", label: "Past Trips" },
+  ]
+  const filteredBookings = activeBookings.filter((booking) => matchesBookingFilter(booking, selectedFilter))
 
   return (
     <div className="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
@@ -50,14 +68,32 @@ export default function BookingsPage() {
         <p className="text-muted-foreground">Track the status and payment progress of your packages.</p>
       </div>
 
-      {safeBookings.length === 0 ? (
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+        {filters.map((filter) => {
+          const count = activeBookings.filter((booking) => matchesBookingFilter(booking, filter.id)).length
+          const isActive = selectedFilter === filter.id
+          return (
+            <button
+              key={filter.id}
+              type="button"
+              onClick={() => setSelectedFilter(filter.id)}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${isActive ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}
+            >
+              {filter.label}
+              <span className={`rounded-full px-2 py-0.5 text-xs ${isActive ? "bg-white/20" : "bg-secondary text-muted-foreground"}`}>{count}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {filteredBookings.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-border bg-card">
           <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-4">
             <Clock className="h-6 w-6 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">No bookings yet</h3>
           <p className="text-muted-foreground max-w-sm mb-6">
-            You haven't registered for any packages yet.
+            {activeBookings.length === 0 ? "You haven't registered for any packages yet." : "No bookings match this filter."}
           </p>
           <Link 
             href="/packages"
@@ -68,8 +104,8 @@ export default function BookingsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {safeBookings.map((booking: any) => {
-            const isConfirmed = booking.status === "Confirmed"
+          {filteredBookings.map((booking) => {
+            const statusPresentation = getBookingStatusPresentation(booking)
             const progressPercent = Math.min(100, Math.round((Number(booking.amountPaid) / Number(booking.totalAmount)) * 100))
             
             return (
@@ -77,10 +113,8 @@ export default function BookingsPage() {
                 <div className="flex flex-col sm:flex-row justify-between gap-4 p-5 rounded-2xl border border-border bg-card hover:border-primary/50 transition-colors cursor-pointer group shadow-sm">
                   <div className="space-y-4 flex-1">
                     <div className="flex items-center gap-3">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        isConfirmed ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
-                      }`}>
-                        {booking.status}
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusPresentation.className}`}>
+                        {statusPresentation.label}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {new Date(booking.createdAt).toLocaleDateString()}

@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { use, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import PaystackPop from '@paystack/inline-js'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession } from "next-auth/react"
 import { formatNaira } from "@/lib/packages"
-import { ArrowLeft, CreditCard, ReceiptText, ShieldCheck, CheckCircle2, Clock, Wallet, Phone, MessageCircle, BadgeCheck, FileText, Image as ImageIcon, Upload, IdCard, Loader2 } from "lucide-react"
+import { getBookingJourneyStep, getBookingStatusPresentation, isCancelledBooking } from "@/lib/booking"
+import { ArrowLeft, CreditCard, ReceiptText, ShieldCheck, CheckCircle2, Wallet, BadgeCheck, FileText, Image as ImageIcon, Upload, IdCard, Loader2, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,26 +18,26 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-export default function BookingDetailsPage({ params }: { params: any }) {
+export default function BookingDetailsPage({ params }: Readonly<{ params: Promise<{ id: string }> }>) {
   const router = useRouter()
+  const { id } = use(params)
   const { data: session } = useSession()
   const [payModalOpen, setPayModalOpen] = useState(false)
   const [installmentAmount, setInstallmentAmount] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null)
   const [deletingDocType, setDeletingDocType] = useState<string | null>(null)
-  const [showReusePrompt, setShowReusePrompt] = useState(true)
+  const [reuseDialogOpen, setReuseDialogOpen] = useState(false)
+  const [selectedDocumentTypes, setSelectedDocumentTypes] = useState<string[]>([])
+  const [isNinVisible, setIsNinVisible] = useState(false)
   const [ninInput, setNinInput] = useState("")
 
   const queryClient = useQueryClient()
 
   const { data: booking, isLoading } = useQuery({
-    queryKey: ['booking', params?.id],
+    queryKey: ['booking', id],
     queryFn: async () => {
-      if (!session?.accessToken || !params?.id) return null
-      
-      const resolvedParams = (params && typeof params.then === 'function') ? await params : params
-      const id = resolvedParams.id
+      if (!session?.accessToken) return null
       
       const API_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api"
       const res = await fetch(`${API_URL}/bookings/${id}`, {
@@ -48,7 +49,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
       if (!res.ok) throw new Error("Failed to fetch booking details")
       return res.json()
     },
-    enabled: !!session?.accessToken && !!params,
+    enabled: !!session?.accessToken && !!id,
   })
 
   useEffect(() => {
@@ -97,7 +98,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
       setUploadingDocType(null)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
+      queryClient.invalidateQueries({ queryKey: ['booking', id] })
     }
   })
 
@@ -121,26 +122,28 @@ export default function BookingDetailsPage({ params }: { params: any }) {
       setDeletingDocType(null)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
+      queryClient.invalidateQueries({ queryKey: ['booking', id] })
     }
   })
 
   const reuseMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (documentTypes: string[]) => {
       if (!session?.accessToken || !booking?.id) throw new Error("No session or booking")
       const API_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api"
       const res = await fetch(`${API_URL}/bookings/${booking.id}/documents/reuse-from-profile`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ documentTypes }),
       })
       if (!res.ok) throw new Error("Failed to reuse documents")
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
-      setShowReusePrompt(false)
+      queryClient.invalidateQueries({ queryKey: ['booking', id] })
+      setReuseDialogOpen(false)
     }
   })
 
@@ -160,7 +163,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
+      queryClient.invalidateQueries({ queryKey: ['booking', id] })
     }
   })
 
@@ -196,8 +199,31 @@ export default function BookingDetailsPage({ params }: { params: any }) {
     )
   }
 
-  const balance = Number(booking.totalAmount) - Number(booking.amountPaid)
-  const progressPercent = Math.min(100, Math.round((Number(booking.amountPaid) / Number(booking.totalAmount)) * 100))
+  if (isCancelledBooking(booking)) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <h2 className="text-xl font-bold">Booking not available</h2>
+        <p className="text-muted-foreground">This booking has been cancelled and is no longer active.</p>
+        <Button onClick={() => router.push("/bookings")}>Back to Bookings</Button>
+      </div>
+    )
+  }
+
+  const paymentBreakdown = booking.paymentBreakdown
+  const totalPrice = Number(paymentBreakdown?.totalAmountPayable ?? booking.totalAmount ?? 0)
+  const amountPaid = Number(paymentBreakdown?.totalPaid ?? booking.amountPaid ?? 0)
+  const balance = Math.max(0, Number(paymentBreakdown?.totalOutstanding ?? totalPrice - amountPaid))
+  const progressPercent = totalPrice > 0 ? Math.min(100, Math.round((amountPaid / totalPrice) * 100)) : 0
+  const registrationPaid = Number(paymentBreakdown?.registration?.paid ?? booking.registrationAmountPaid ?? 0)
+  const installments = Array.isArray(booking.installments) ? booking.installments : []
+  const journeyStep = getBookingJourneyStep(booking)
+  const statusPresentation = getBookingStatusPresentation(booking)
+  const journeySteps = [
+    { title: "Secure Booking", subtitle: "Registration" },
+    { title: "UfitGo Concierge", subtitle: "Documents" },
+    { title: "Payment Plan", subtitle: "Installments" },
+    { title: "Travel Ready", subtitle: "Fulfillment" },
+  ]
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -230,7 +256,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
         }
 
         // Invalidate cache to refetch
-        queryClient.invalidateQueries({ queryKey: ['booking', params?.id] })
+        queryClient.invalidateQueries({ queryKey: ['booking', id] })
         queryClient.invalidateQueries({ queryKey: ['bookings'] })
         
         setPayModalOpen(false);
@@ -248,78 +274,109 @@ export default function BookingDetailsPage({ params }: { params: any }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-4 sm:p-6 lg:p-8 space-y-8">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/bookings")} className="rounded-full">
+    <div className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+      <div className="mb-8 flex items-center gap-4 border-b border-border pb-6">
+        <Button variant="ghost" size="icon" onClick={() => router.push("/bookings")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-serif font-bold text-foreground">Booking Details</h1>
-          <p className="text-sm text-muted-foreground font-mono">Ref: {booking.bookingRef}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">My booking</p>
+          <h1 className="mt-1 text-2xl font-bold text-foreground">{booking.packageName}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Reference <span className="font-mono text-foreground">{booking.bookingRef}</span></p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_320px]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         
-        {/* Left Column: Status & Timeline */}
-        <div className="space-y-6">
-          <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold mb-4">{booking.packageName}</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm mb-6">
+        <div className="min-w-0 space-y-8">
+          <section className="border-b border-border pb-6">
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-muted-foreground">Operator</p>
-                <p className="font-semibold">{booking.operatorName}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Trip overview</p>
+                <p className="mt-1 text-lg font-bold text-foreground">{booking.operatorName}</p>
+              </div>
+              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusPresentation.className}`}>{statusPresentation.label}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-5 text-sm sm:grid-cols-3">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Travellers</p>
+                <p className="mt-1 font-semibold text-foreground">{booking.numberOfPilgrims}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Travellers</p>
-                <p className="font-semibold">{booking.numberOfPilgrims}</p>
+                <p className="text-xs font-medium text-muted-foreground">Departure</p>
+                <p className="mt-1 font-semibold text-foreground">{booking.departureDate || "To be confirmed"}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Departure</p>
-                <p className="font-semibold">{booking.departureDate}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Status</p>
-                <p className="font-semibold text-primary">{booking.status}</p>
+                <p className="text-xs font-medium text-muted-foreground">Booking status</p>
+                <p className="mt-1 font-semibold text-foreground">{statusPresentation.label}</p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Operator Contact */}
-          <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold mb-4">Your Operator</h3>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4 w-full">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="text-primary font-bold text-xl">{booking.operatorName.charAt(0)}</span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="font-bold text-base">{booking.operatorName}</p>
-                    <BadgeCheck className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Verified Travel Partner</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                <Button variant="outline" className="flex-1 sm:flex-none rounded-xl text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 bg-blue-50/50">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call
-                </Button>
-                <Button variant="outline" className="flex-1 sm:flex-none rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 bg-green-50/50">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  WhatsApp
-                </Button>
+          <section className="border-b border-border pb-8">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold">Your journey</h2>
+                <p className="text-sm text-muted-foreground">Follow each step as your pilgrimage plans progress.</p>
               </div>
             </div>
-          </div>
+            <ol className="grid gap-4 sm:grid-cols-4">
+              {journeySteps.map((step, index) => {
+                const isComplete = index < journeyStep
+                const isCurrent = index === journeyStep
+                let stepClassName = "border-border bg-secondary text-muted-foreground"
+                if (isComplete) stepClassName = "border-primary bg-primary text-primary-foreground"
+                if (isCurrent) stepClassName = "border-primary bg-primary/10 text-primary"
+                return (
+                  <li key={step.title} className="flex items-center gap-3 sm:block">
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${stepClassName}`}>
+                      {isComplete ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                      <p className="text-xs text-muted-foreground">{step.subtitle}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
+            <div className="mt-5 border-l-2 border-primary pl-4 text-sm leading-6 text-muted-foreground">
+              {journeyStep === 0 && "Complete the required registration payment to secure your place."}
+              {journeyStep === 1 && "Your booking is secured. A UfitGo Concierge will guide you through document preparation."}
+              {journeyStep === 2 && "Your documents are progressing. Continue with your package payment plan when ready."}
+              {journeyStep === 3 && "Your payment plan is complete. Your travel fulfilment updates will appear here."}
+            </div>
+          </section>
+
+          {journeyStep === 1 && (
+            <div className="border-l-2 border-emerald-600 bg-emerald-50/60 px-5 py-4">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+                <div>
+                  <h3 className="font-bold text-emerald-950">Your booking is with Concierge</h3>
+                  <p className="mt-1 text-sm leading-6 text-emerald-900/80">Submit your travel documents below. Your concierge will review them and keep you informed as your booking moves to the payment plan.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {journeyStep === 3 && (
+            <div className="border-l-2 border-green-600 bg-green-50/60 px-5 py-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-700" />
+                <div>
+                  <h3 className="font-bold text-green-950">Travel payment complete</h3>
+                  <p className="mt-1 text-sm leading-6 text-green-900/80">Your booking is financially complete. Travel and fulfilment updates will be shared here as they become available.</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Required Documents */}
-          <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
-            <div className="flex justify-between items-start mb-6">
+          {journeyStep >= 1 && <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-bold">Required Documents</h3>
+                <h2 className="text-lg font-bold">Required documents</h2>
                 <p className="text-sm text-muted-foreground">Upload these to complete your booking</p>
               </div>
               <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200">
@@ -327,43 +384,38 @@ export default function BookingDetailsPage({ params }: { params: any }) {
               </span>
             </div>
 
-            {showReusePrompt && profile?.data && (profile.data.nin || profile.data.passportUrl || profile.data.photoUrl) && (!booking.nin || !booking.passportUrl || !booking.photoUrl) && (
-              <div className="mb-4 bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {profile?.data && (profile.data.nin || profile.data.passportUrl || profile.data.photoUrl) && (!booking.nin || !booking.passportUrl || !booking.photoUrl) && (
+              <div className="mb-6 grid gap-4 border-b border-border bg-secondary/40 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center shrink-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10">
                     <FileText className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-primary">Saved Documents Found</h4>
-                    <p className="text-xs text-primary/80">Would you like to reuse the documents you saved previously?</p>
+                    <h4 className="text-sm font-bold text-foreground">Saved documents available</h4>
+                    <p className="text-sm text-muted-foreground">Review the saved documents you want to add to this booking.</p>
                   </div>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="flex-1 sm:flex-none text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5"
-                    onClick={() => setShowReusePrompt(false)}
-                    disabled={reuseMutation.isPending}
-                  >
-                    Dismiss
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="flex-1 sm:flex-none rounded-xl"
-                    onClick={() => reuseMutation.mutate()}
-                    disabled={reuseMutation.isPending}
-                  >
-                    {reuseMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Reuse Documents"}
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  className="rounded-md"
+                  onClick={() => {
+                    setSelectedDocumentTypes([
+                      ...(profile.data.nin ? ["nin"] : []),
+                      ...(profile.data.passportUrl ? ["passport"] : []),
+                      ...(profile.data.photoUrl ? ["photo"] : []),
+                    ])
+                    setReuseDialogOpen(true)
+                  }}
+                >
+                  Review documents
+                </Button>
               </div>
             )}
 
-            <div className="space-y-3">
-              <div className="rounded-xl border border-border bg-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+            <div className="divide-y divide-border border-y border-border">
+              <div className="grid gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_minmax(240px,auto)] sm:items-center">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <IdCard className="h-6 w-6" />
                   </div>
                   <div>
@@ -372,9 +424,9 @@ export default function BookingDetailsPage({ params }: { params: any }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex items-center gap-3 sm:justify-end">
                   {booking.nin ? (
-                    <div className="flex items-center gap-3 bg-secondary/30 px-3 py-2 rounded-lg w-full sm:w-auto justify-between border border-border/50">
+                    <div className="flex w-full items-center justify-between gap-3 bg-secondary/50 px-3 py-2 sm:w-auto">
                       <div className="flex flex-col">
                         <span className="text-xs text-muted-foreground font-medium">Submitted NIN</span>
                         <span className="text-sm font-semibold tracking-wider font-mono">{booking.nin}</span>
@@ -402,7 +454,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-border bg-secondary/20 overflow-hidden">
+              <div className="bg-secondary/20">
                 <DocumentRow 
                   title="International Passport"
                   subtitle="Bio-data page, PDF/JPG"
@@ -416,7 +468,7 @@ export default function BookingDetailsPage({ params }: { params: any }) {
                   noBorder
                 />
 
-                <div className="bg-blue-50/50 border-t border-blue-100 p-3 px-4 flex items-center gap-2 text-blue-800 text-sm">
+                <div className="flex items-center gap-2 border-t border-blue-100 bg-blue-50/50 px-4 py-3 text-sm text-blue-800">
                   <ShieldCheck className="h-4 w-4 shrink-0 text-blue-500" />
                   <span>Ensure at least 6 months validity remains before your travel date.</span>
                 </div>
@@ -434,114 +486,168 @@ export default function BookingDetailsPage({ params }: { params: any }) {
                 onDelete={(type: string) => deleteMutation.mutate(type)}
               />
             </div>
-          </div>
+          </section>}
 
-          <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold mb-6">Booking Timeline</h3>
-            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-              
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-green-100 text-green-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <CheckCircle2 className="h-5 w-5" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-border bg-card shadow-sm">
-                  <div className="flex items-center justify-between space-x-2 mb-1">
-                    <div className="font-bold text-sm">Registered</div>
-                    <time className="font-mono text-xs text-muted-foreground">{new Date(booking.createdAt).toLocaleDateString()}</time>
+          <Dialog open={reuseDialogOpen} onOpenChange={(open) => {
+            setReuseDialogOpen(open)
+            if (!open) setIsNinVisible(false)
+          }}>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Review saved documents</DialogTitle>
+                <DialogDescription>
+                  Select the profile documents to add to this booking. Existing booking documents are only replaced when selected here.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                {[
+                  { type: "nin", label: "National ID (NIN)", available: Boolean(profile?.data?.nin), existing: Boolean(booking.nin), value: profile?.data?.nin },
+                  { type: "passport", label: "International Passport", available: Boolean(profile?.data?.passportUrl), existing: Boolean(booking.passportUrl), url: profile?.data?.passportUrl },
+                  { type: "photo", label: "Passport Photograph", available: Boolean(profile?.data?.photoUrl), existing: Boolean(booking.photoUrl), url: profile?.data?.photoUrl },
+                ].filter((document) => document.available).map((document) => (
+                  <div key={document.type} className="flex items-center justify-between gap-4 border border-border p-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">{document.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {document.existing ? "Replaces the document currently on this booking" : "Adds your saved document to this booking"}
+                      </p>
+                      {document.type === "nin" && document.value && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="font-mono text-sm tracking-wider">{isNinVisible ? document.value : `${"*".repeat(Math.max(document.value.length - 3, 0))}${document.value.slice(-3)}`}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setIsNinVisible((visible) => !visible)}
+                            aria-label={isNinVisible ? "Hide saved NIN" : "Reveal saved NIN"}
+                            title={isNinVisible ? "Hide saved NIN" : "Reveal saved NIN"}
+                          >
+                            {isNinVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      )}
+                      {document.type === "passport" && document.url && (
+                        <a href={document.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline">
+                          <Eye className="h-4 w-4" />
+                          View saved passport
+                        </a>
+                      )}
+                      {document.type === "photo" && document.url && (
+                        <a href={document.url} target="_blank" rel="noopener noreferrer" className="mt-3 block w-fit" title="View saved passport photograph">
+                          <img src={document.url} alt="Saved passport photograph" className="h-16 w-16 border border-border object-cover" />
+                        </a>
+                      )}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={selectedDocumentTypes.includes(document.type)}
+                      onChange={(event) => setSelectedDocumentTypes((current) => event.target.checked
+                        ? [...current, document.type]
+                        : current.filter((type) => type !== document.type))}
+                      className="h-4 w-4 shrink-0 accent-primary"
+                      aria-label={`Reuse ${document.label}`}
+                    />
                   </div>
-                  <div className="text-xs text-muted-foreground">₦50,000 Registration Fee paid. Slot secured.</div>
-                </div>
+                ))}
               </div>
-
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-blue-50 text-blue-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <Clock className="h-5 w-5" />
-                </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-border bg-secondary/50 shadow-sm opacity-60">
-                  <div className="flex items-center justify-between space-x-2 mb-1">
-                    <div className="font-bold text-sm">Visa Processing</div>
-                  </div>
-                  <div className="text-xs text-amber-600 font-medium mt-1">Awaiting document submission.</div>
-                </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setReuseDialogOpen(false)} disabled={reuseMutation.isPending}>Cancel</Button>
+                <Button onClick={() => reuseMutation.mutate(selectedDocumentTypes)} disabled={!selectedDocumentTypes.length || reuseMutation.isPending}>
+                  {reuseMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Reuse selected documents
+                </Button>
               </div>
-
-            </div>
-          </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Right Column: Financials */}
-        <div className="space-y-6">
-          <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-bold mb-4 font-serif text-primary-foreground/90">Payment Summary</h3>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Total Price</span>
-                <span className="font-bold">{formatNaira(booking.totalAmount)}</span>
+        <aside className="space-y-5 lg:sticky lg:top-6 lg:self-start">
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+            <div className="flex items-center justify-between bg-[#173c32] px-5 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-white/10">
+                  <Wallet className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold">Payment plan</h3>
+                  <p className="text-xs text-white/70">{progressPercent}% of your trip funded</p>
+                </div>
               </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Amount Paid</span>
-                <span className="font-bold text-green-600">{formatNaira(booking.amountPaid)}</span>
-              </div>
-
-              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden my-2">
-                <div 
-                  className="h-full bg-primary rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-
-              <div className="flex justify-between items-center text-sm border-t border-primary/10 pt-4 mt-2">
-                <span className="font-semibold">Balance Remaining</span>
-                <span className="font-bold text-lg">{formatNaira(balance)}</span>
-              </div>
+              <span className="rounded-full border border-white/20 px-2.5 py-1 text-xs font-semibold">{balance === 0 ? "Paid in full" : "In progress"}</span>
             </div>
 
-            {balance > 0 && (
-              <Button 
-                className="w-full mt-6 h-12 rounded-full font-semibold shadow-md"
-                onClick={() => setPayModalOpen(true)}
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                Pay Installment
-              </Button>
-            )}
+            <div className="p-5">
+              <div className="mb-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total trip cost</p>
+                  <p className="mt-1 text-2xl font-bold tracking-normal text-foreground">{formatNaira(totalPrice)}</p>
+                </div>
+                <p className="text-right text-xs text-muted-foreground">Includes registered<br />payment stages</p>
+              </div>
+
+              <div className="mb-5 h-2 overflow-hidden rounded-full bg-secondary">
+                <div className="h-full rounded-full bg-emerald-600 transition-all duration-500" style={{ width: `${progressPercent}%` }} />
+              </div>
+
+              <div className="grid grid-cols-2 divide-x divide-border border-y border-border">
+                <div className="py-4 pr-4">
+                  <p className="text-xs font-medium text-muted-foreground">Paid so far</p>
+                  <p className="mt-1 text-lg font-bold text-emerald-700">{formatNaira(amountPaid)}</p>
+                </div>
+                <div className="py-4 pl-4">
+                  <p className="text-xs font-medium text-muted-foreground">Remaining</p>
+                  <p className="mt-1 text-lg font-bold text-foreground">{formatNaira(balance)}</p>
+                </div>
+              </div>
+
+              {balance > 0 && (journeyStep === 0 || journeyStep === 2) && (
+                <Button className="mt-5 h-11 w-full rounded-md font-semibold" onClick={() => setPayModalOpen(true)}>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  {journeyStep === 0 ? "Complete Registration" : "Make a Payment"}
+                </Button>
+              )}
+            </div>
           </div>
 
-          <div className="bg-card border border-border p-6 rounded-2xl shadow-sm">
-            <h3 className="text-sm font-bold mb-4 uppercase tracking-wider text-muted-foreground">Payment History</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-sm">
+          <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-foreground">Payment activity</h3>
+              <span className="text-xs text-muted-foreground">{installments.length + (registrationPaid > 0 ? 1 : 0)} recorded</span>
+            </div>
+            <div className="divide-y divide-border">
+              {registrationPaid > 0 && <div className="flex items-center justify-between py-3 text-sm first:pt-0">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
-                    <ReceiptText className="h-4 w-4 text-green-600" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-50">
+                    <ReceiptText className="h-4 w-4 text-emerald-700" />
                   </div>
                   <div>
-                    <p className="font-medium">Registration Fee</p>
+                    <p className="font-medium">Registration payment</p>
                     <p className="text-xs text-muted-foreground">{new Date(booking.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <span className="font-semibold text-green-600">₦50,000</span>
-              </div>
+                <span className="font-semibold text-emerald-700">{formatNaira(registrationPaid)}</span>
+              </div>}
 
-              {booking.installments.map((inst: any) => (
+              {installments.map((inst: any) => (
                 <div key={inst.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
-                      <ReceiptText className="h-4 w-4 text-green-600" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-50">
+                      <ReceiptText className="h-4 w-4 text-emerald-700" />
                     </div>
                     <div>
-                      <p className="font-medium">Installment</p>
+                      <p className="font-medium">Package payment</p>
                       <p className="text-xs text-muted-foreground">{new Date(inst.date).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <span className="font-semibold text-green-600">{formatNaira(inst.amount)}</span>
+                  <span className="font-semibold text-emerald-700">{formatNaira(inst.amount)}</span>
                 </div>
               ))}
+              {registrationPaid === 0 && installments.length === 0 && <p className="py-3 text-sm text-muted-foreground">No payments have been recorded yet.</p>}
             </div>
           </div>
-        </div>
+          <BookingOperator operatorName={booking.operatorName} />
+        </aside>
 
       </div>
 
@@ -649,9 +755,9 @@ function DocumentRow({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4", !noBorder && "rounded-xl border border-border bg-secondary/20")}>
+    <div className={cn("flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center", !noBorder && "border-b border-border bg-secondary/20 last:border-b-0")}>
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10">
           <Icon className="h-5 w-5 text-primary" />
         </div>
         <div>
@@ -660,7 +766,7 @@ function DocumentRow({
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:justify-end">
         {currentUrl ? (
           <>
             <Button variant="outline" size="sm" className="rounded-xl h-9 text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100 hover:text-blue-700" asChild>
@@ -707,5 +813,27 @@ function DocumentRow({
         ) : null}
       </div>
     </div>
+  )
+}
+
+function BookingOperator({ operatorName }: Readonly<{ operatorName?: string }>) {
+  const initial = operatorName?.trim().charAt(0).toUpperCase() || "U"
+
+  return (
+    <section className="border-t border-border pt-5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Travel partner</p>
+      <div className="mt-3 flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-bold text-primary">
+          {initial}
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-semibold text-foreground">{operatorName || "Your operator"}</p>
+            <BadgeCheck className="h-4 w-4 shrink-0 text-blue-600" />
+          </div>
+          <p className="text-xs text-muted-foreground">Verified travel partner</p>
+        </div>
+      </div>
+    </section>
   )
 }

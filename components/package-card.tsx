@@ -3,8 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BadgeCheck, CalendarDays, Clock, Check, ArrowRight, GitCompare, MapPin, Heart } from "lucide-react"
-import { type Package, formatNaira } from "@/lib/packages"
+import { BadgeCheck, CalendarDays, Clock, Check, ArrowRight, MapPin, Heart, UsersRound } from "lucide-react"
+import { type Package, formatNaira, getPackageAvailability } from "@/lib/packages"
 import { cn } from "@/lib/utils"
 
 export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: boolean }) {
@@ -12,6 +12,13 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
   const [imageError, setImageError] = useState(false)
 
   const hasValidImage = pkg.cardImage && pkg.cardImage !== "/placeholder.svg" && !imageError
+  const hasDepartureCity = Boolean(pkg.departureCity && pkg.departureCity !== "Unknown")
+  const availability = getPackageAvailability(pkg)
+  const availabilityClassName = availability.status === "available"
+    ? "text-emerald-700"
+    : availability.status === "limited"
+      ? "text-amber-700"
+      : "text-destructive"
 
   // Get up to 2 initials from the package name
   const getInitials = (name: string) => {
@@ -102,7 +109,11 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
           </div>
           <div className="flex items-center gap-2 text-muted-foreground col-span-2">
             <MapPin className="h-4 w-4 shrink-0 text-primary/70" />
-            <dd>From {pkg.departureCity}</dd>
+            <dd>{hasDepartureCity ? `From ${pkg.departureCity}` : "Departure location to be announced"}</dd>
+          </div>
+          <div className={cn("flex items-center gap-2 col-span-2 font-medium", availabilityClassName)}>
+            <UsersRound className="h-4 w-4 shrink-0" />
+            <dd>{availability.label}</dd>
           </div>
         </dl>
 
@@ -121,6 +132,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
               <p className="text-xs text-muted-foreground">Starting from</p>
               <p className="font-serif text-xl font-semibold text-foreground leading-none mt-1">{formatNaira(pkg.priceFrom)}</p>
             </div>
+            {/*
             <Link
               href={`/compare?id=${pkg.id}`}
               className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground hover:bg-primary/5"
@@ -129,6 +141,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
               <GitCompare className="h-3.5 w-3.5" />
               Compare
             </Link>
+            */}
           </div>
           
           <Link

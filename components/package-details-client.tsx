@@ -4,9 +4,9 @@ import Image from "next/image"
 import { useState } from "react"
 import { 
   BadgeCheck, CalendarDays, Clock, Check, MapPin, 
-  Bookmark, GitCompare, ArrowRight, ShieldCheck, Star 
+  Bookmark, ArrowLeft, ArrowRight, ShieldCheck, Star, UsersRound
 } from "lucide-react"
-import { type Package, formatNaira } from "@/lib/packages"
+import { type Package, formatNaira, getPackageAvailability, hasInstallmentPlan } from "@/lib/packages"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { RegistrationModal } from "@/components/registration-modal"
@@ -19,11 +19,25 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<"book" | "save">("book")
+  const hasInstallments = hasInstallmentPlan(pkg)
+  const availability = getPackageAvailability(pkg)
+
+  const handleBack = () => {
+    router.push("/packages")
+  }
 
   return (
     <article className="pb-24">
       {/* Hero Section */}
       <div className="relative h-[40vh] min-h-[300px] w-full bg-zinc-950">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background"
+          aria-label="Back to packages"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         <Image
           src={pkg.heroImage || pkg.cardImage || "/placeholder.svg"}
           alt={pkg.name}
@@ -64,7 +78,7 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
             {/* Overview Grid */}
             <section>
               <h2 className="text-xl font-bold mb-6 font-serif">Package Overview</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 rounded-2xl bg-secondary/30 border border-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 p-6 rounded-2xl bg-secondary/30 border border-border">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-muted-foreground text-sm">
                     <Clock className="h-4 w-4" /> Duration
@@ -83,6 +97,14 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
                   </div>
                   <p className="font-medium">{pkg.departureCity}</p>
                 </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <UsersRound className="h-4 w-4" /> Availability
+                  </div>
+                  <p className={cn("font-medium", availability.status === "available" ? "text-emerald-700" : availability.status === "limited" ? "text-amber-700" : "text-destructive")}>
+                    {availability.label}
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -100,7 +122,7 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
                   </div>
                 )}
                 
-                {pkg.installmentEligible ? (
+                {hasInstallments ? (
                   <>
                     <div className="flex justify-between items-center border-b border-primary/10 pb-4">
                       <div>
@@ -143,24 +165,32 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
             </section>
 
             {/* Operator Info */}
-            <section className="bg-secondary/30 p-8 rounded-3xl border border-border">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">About the Operator</h2>
-              <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground text-xl font-bold font-serif">
-                  {pkg.operator.name.charAt(0)}
+            <section>
+              <Link
+                href={`/operators/${pkg.operator.id}`}
+                className="group block rounded-3xl border border-border bg-secondary/30 p-8 transition-colors hover:border-primary/40 hover:bg-primary/5"
+              >
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">About the Operator</h2>
+                  <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold flex items-center gap-2">
-                    {pkg.operator.name}
-                    {pkg.operator.verified && <ShieldCheck className="h-5 w-5 text-primary" />}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1 mb-4 text-sm font-medium">
-                    <Star className="h-4 w-4 fill-accent text-accent" />
-                    {pkg.operator.rating} ({pkg.operator.reviews} reviews)
+                <div className="flex items-start gap-4">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground text-xl font-bold font-serif">
+                    {pkg.operator.name.charAt(0)}
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">{pkg.operator.description}</p>
+                  <div>
+                    <h3 className="text-xl font-bold flex items-center gap-2">
+                      {pkg.operator.name}
+                      {pkg.operator.verified && <ShieldCheck className="h-5 w-5 text-primary" />}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1 mb-4 text-sm font-medium">
+                      <Star className="h-4 w-4 fill-accent text-accent" />
+                      {pkg.operator.rating} ({pkg.operator.reviews} reviews)
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">{pkg.operator.description}</p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </section>
 
           </div>
@@ -176,45 +206,51 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
               </div>
 
               <div className="space-y-4">
+                {!availability.isBookable && (
+                  <p className="rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm font-medium text-destructive">
+                    {availability.label}. Booking is not available for this package right now.
+                  </p>
+                )}
                 <button
                   onClick={() => {
+                    if (!availability.isBookable) {
+                      return
+                    }
                     if (!session?.user?.id) {
-                      router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`)
+                      router.push(`/login?callbackUrl=${encodeURIComponent(window.location.href)}`)
                       return
                     }
                     setModalMode("book")
                     setIsModalOpen(true)
                   }}
+                  disabled={!availability.isBookable}
                   className={cn(buttonVariants({ size: "lg" }), "w-full h-auto py-3 flex-col items-center gap-1 shadow-md rounded-full")}
                 >
-                  <span className="text-base font-semibold">Register & Book</span>
+                  <span className="text-base font-semibold">{availability.isBookable ? "Register & Book" : availability.label}</span>
                   <span className="text-xs font-normal text-primary-foreground/80">
                     {pkg.registrationFeeEnabled 
                       ? `Requires ${formatNaira(pkg.registrationFeeAmount || 0)} Registration Fee` 
-                      : `Requires ${formatNaira(pkg.installmentEligible ? (pkg.initialDeposit || 0) : pkg.priceFrom)} Initial Payment`}
+                      : `Requires ${formatNaira(hasInstallments ? (pkg.initialDeposit || 0) : pkg.priceFrom)} Initial Payment`}
                   </span>
                 </button>
 
-                <Link href={`/wallet/target/new?packageId=${pkg.id}&packageName=${encodeURIComponent(pkg.name)}&targetAmount=${pkg.priceFrom}&category=${pkg.category}`} className="block">
-                  <button className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full h-14 text-base font-semibold text-primary border-primary/20 bg-primary/5 hover:bg-primary/10 rounded-full")}>
-                    Start Saving for This Package
-                  </button>
-                </Link>
+                {/* Start Saving for This Package is temporarily unavailable. */}
                 
-                <div className="grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-border/30">
+                <div className="mt-6 border-t border-border/30 pt-4">
                   <button
                     onClick={() => {
                       setModalMode("save")
                       setIsModalOpen(true)
                     }}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-full border py-3 text-sm font-medium transition-colors bg-card border-border hover:bg-secondary text-foreground"
+                      "flex w-full items-center justify-center gap-2 rounded-full border py-3 text-sm font-medium transition-colors bg-card border-border hover:bg-secondary text-foreground"
                     )}
                   >
                     <Bookmark className="h-4 w-4" />
                     Save
                   </button>
                   
+                  {/*
                   <Link
                     href={`/compare?id=${pkg.id}`}
                     className={cn(
@@ -224,6 +260,7 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
                     <GitCompare className="h-4 w-4" />
                     Compare
                   </Link>
+                  */}
                 </div>
               </div>
             </div>

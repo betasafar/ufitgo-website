@@ -67,13 +67,13 @@ export function DashboardSidebarContent() {
 
       {session?.user ? (
         <div className="px-6 py-4">
-          <Link href="/profile" className="flex items-center gap-3 rounded-lg bg-card p-3 shadow-sm transition-colors hover:bg-secondary/50">
+          <Link href="/profile" className="flex min-w-0 items-center gap-3 rounded-lg bg-card p-3 shadow-sm transition-colors hover:bg-secondary/50">
             <Avatar className="h-10 w-10">
               <AvatarFallback>{(session.user as any).firstName?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="text-sm font-semibold">{(session.user as any).firstName} {(session.user as any).lastName}</span>
-              <span className="text-xs text-muted-foreground">{session.user.email}</span>
+              <span className="truncate text-xs text-muted-foreground" title={session.user.email}>{session.user.email}</span>
             </div>
           </Link>
         </div>
