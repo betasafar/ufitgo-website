@@ -74,10 +74,10 @@ export function Hero() {
 
         <div className="animate-fade-up delay-400 mt-10 flex w-full flex-col items-center justify-center gap-6 sm:w-auto sm:flex-row">
           <a
-            href="/#how-it-works"
+            href="/packages"
             className={cn(buttonVariants({ size: "lg" }), "h-14 gap-2 rounded-full px-8 text-base font-semibold w-full sm:w-auto bg-[#f1a10d] text-[#000] shadow-[0_18px_38px_rgba(241,161,13,0.28)] hover:bg-[#d9900c] hover:-translate-y-0.5")}
           >
-            Explore the journey
+            Explore packages
             <ArrowRight className="h-4 w-4" />
           </a>
           {/* <a href="#packages" className={cn(buttonVariants({ size: "lg" }), "rounded-full h-14 gap-1 px-12 text-base font-semibold w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90")}>

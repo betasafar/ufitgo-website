@@ -1,4 +1,4 @@
-import { ArrowRight, IdCard, MapPin } from "lucide-react"
+import { IdCard, MapPin, MessageCircle } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
 
 const services = [
@@ -60,6 +60,7 @@ export function ServicesSection() {
                 href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi UfitGo, I am interested in ${service.title}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Chat with UfitGo on WhatsApp about ${service.title}`}
                 className="group flex h-full flex-col rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition-all hover:border-zinc-700 hover:bg-zinc-800/80 hover:shadow-2xl hover:shadow-primary/5"
               >
                 <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 shadow-inner transition-colors group-hover:border-primary/30">
@@ -74,9 +75,9 @@ export function ServicesSection() {
                   {service.description}
                 </p>
 
-                <span className="mt-auto flex items-center text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
-                  Explore
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <span className="mt-auto inline-flex w-fit items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors group-hover:bg-primary/85">
+                  <MessageCircle className="h-4 w-4" />
+                  Chat on WhatsApp
                 </span>
               </a>
             </ScrollReveal>
