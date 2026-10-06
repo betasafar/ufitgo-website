@@ -64,9 +64,9 @@ export function SiteFooter() {
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} UfitGo. All rights reserved.
           </p>
-          <p className="text-sm text-muted-foreground max-w-lg text-center sm:text-right">
+          {/* <p className="text-sm text-muted-foreground max-w-lg text-center sm:text-right">
             UfitGo is a technology platform, not a bank or currency trader. Savings are powered by regulated tier-1 banking partners and protected by NDIC.
-          </p>
+          </p> */}
         </div>
       </div>
     </footer>
