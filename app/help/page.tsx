@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { Mail, MessageSquare, PhoneCall, HelpCircle, ArrowRight } from "lucide-react"
+import { Mail, MessageSquare, PhoneCall, HelpCircle, ArrowRight, MapPin } from "lucide-react"
 
 export default function SupportPage() {
   return (
@@ -68,6 +68,54 @@ export default function SupportPage() {
                 </a>
               </div>
             </div>
+
+            <section className="mt-16 border-y border-slate-200 py-10">
+              <div className="mb-8 max-w-2xl">
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">Visit UfitGo</p>
+                <h2 className="mt-2 text-3xl font-bold text-slate-900">Our offices</h2>
+                <p className="mt-3 text-slate-600">Speak with our team in person at either Lagos location.</p>
+              </div>
+
+              <div className="grid gap-8 md:grid-cols-2">
+                <div className="border-l-2 border-primary pl-5">
+                  <div className="flex items-center gap-2 text-slate-900">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">Main Office</h3>
+                  </div>
+                  <address className="mt-3 not-italic leading-7 text-slate-600">
+                    Shop 47 First Floor, Off Awodi-Ora Estate, Oja Market,<br />
+                    Ajeromi-Ifelodun, Lagos.
+                  </address>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Shop%2047%20First%20Floor%2C%20Off%20Awodi-Ora%20Estate%2C%20Oja%20Market%2C%20Ajeromi-Ifelodun%2C%20Lagos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:underline"
+                  >
+                    Get directions <ArrowRight className="ml-1 h-4 w-4" />
+                  </a>
+                </div>
+
+                <div className="border-l-2 border-primary pl-5">
+                  <div className="flex items-center gap-2 text-slate-900">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">Branch Office</h3>
+                  </div>
+                  <address className="mt-3 not-italic leading-7 text-slate-600">
+                    Suite F10, 23 Road Market, opposite Mobil Filling Station,<br />
+                    Festac Town, Lagos.
+                  </address>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Suite%20F10%2C%2023%20Road%20Market%2C%20Festac%20Town%2C%20Lagos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:underline"
+                  >
+                    Get directions <ArrowRight className="ml-1 h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </section>
 
             {/* FAQ Section */}
             <div className="mt-24 rounded-3xl bg-white p-8 md:p-12 ring-1 ring-slate-100 shadow-sm animate-in fade-in duration-1000 delay-300">
