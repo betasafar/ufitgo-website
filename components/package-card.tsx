@@ -14,6 +14,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
   const hasValidImage = pkg.cardImage && pkg.cardImage !== "/placeholder.svg" && !imageError
   const hasDepartureCity = Boolean(pkg.departureCity && pkg.departureCity !== "Unknown")
   const availability = getPackageAvailability(pkg)
+  const priceOnRequest = pkg.priceOnRequest || pkg.priceFrom <= 0
   const availabilityClassName = availability.status === "available"
     ? "text-emerald-700"
     : availability.status === "limited"
@@ -129,8 +130,8 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
         <div className="mt-auto border-t border-border pt-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-xs text-muted-foreground">Starting from</p>
-              <p className="font-serif text-xl font-semibold text-foreground leading-none mt-1">{formatNaira(pkg.priceFrom)}</p>
+              <p className="text-xs text-muted-foreground">{priceOnRequest ? "Pricing" : "Starting from"}</p>
+              <p className="font-serif text-xl font-semibold text-foreground leading-none mt-1">{priceOnRequest ? "Price on request" : formatNaira(pkg.priceFrom)}</p>
             </div>
             {/*
             <Link

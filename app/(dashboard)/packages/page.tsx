@@ -13,13 +13,32 @@ export default async function PackagesPage() {
     // Fetch a large limit for the browse page, or handle pagination
     const data = await fetchPublicPackages(1, 50)
     
-    packages = data?.data?.map((apiPkg: any) => ({
+    const uniquePackages = Array.from(
+      (data?.data || []).reduce((unique: Map<string, any>, apiPkg: any) => {
+        const key = [
+          apiPkg.operator?.id || apiPkg.operatorId || "unknown",
+          apiPkg.title || "untitled",
+          apiPkg.type || "unknown",
+          apiPkg.serviceLevel || "standard",
+          apiPkg.departureDate || "undated",
+        ].join("|")
+        const existing = unique.get(key)
+
+        if (!existing || Number(apiPkg.capacity || 0) > Number(existing.capacity || 0)) {
+          unique.set(key, apiPkg)
+        }
+        return unique
+      }, new Map<string, any>()).values(),
+    )
+
+    packages = uniquePackages.map((apiPkg: any) => ({
       id: apiPkg.id.toString(),
       name: apiPkg.title,
       type: apiPkg.type,
       category: apiPkg.serviceLevel,
       operator: apiPkg.operator,
-      priceFrom: parseFloat(apiPkg.price),
+      priceFrom: Number(apiPkg.price) || 0,
+      priceOnRequest: Boolean(apiPkg.priceOnRequest) || (Number(apiPkg.price) <= 0 && !(apiPkg.tiers || []).some((tier: any) => Number(tier?.price) > 0)),
       duration: apiPkg.duration,
       departureDate: apiPkg.departureDate,
       departureCity: apiPkg.departingFrom?.split(',')[0] || "Unknown",

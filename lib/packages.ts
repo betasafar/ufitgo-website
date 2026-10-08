@@ -31,6 +31,7 @@ export type Package = {
   category: string // API: serviceLevel (premium, family, economy)
   operator: Operator
   priceFrom: number // API: price
+  priceOnRequest?: boolean
   duration: number // API duration in days/nights
   departureDate: string
   departureCity: string
