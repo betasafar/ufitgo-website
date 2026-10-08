@@ -33,7 +33,7 @@ export default function TermsPage() {
 
             <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">2. User Responsibilities</h2>
             <p>
-              When registering an account as a customer or a provider, you must provide accurate, current, and complete information. You are solely responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
+              When registering an account as a customer or a provider, you must provide accurate, current, and complete information. You must be at least 18 years old and legally eligible to enter into these Terms and use UfitGo&apos;s booking, payment, and savings features. You are solely responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
             </p>
 
             <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">3. Platform Role</h2>

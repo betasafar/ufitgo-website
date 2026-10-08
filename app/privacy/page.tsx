@@ -69,6 +69,11 @@ export default function PrivacyPage() {
               We implement state-of-the-art security measures. Your data is encrypted in transit using TLS and encrypted at rest on secure cloud servers. Access to your personal data is strictly limited to authorized personnel.
             </p>
 
+            <h2 className="text-2xl mt-12 mb-6 pb-2 border-b border-slate-100">4. Account Deletion</h2>
+            <p>
+              You may request deletion of your UfitGo account and associated personal information at any time. Visit our <a href="/account-deletion">Account Deletion page</a> for the in-app steps and support request option.
+            </p>
+
             <div className="mt-16 p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
               <h3 className="font-semibold text-lg text-slate-900 mb-2">Have Questions?</h3>
               <p className="text-slate-600 mb-4">Our privacy team is available to address any concerns.</p>
