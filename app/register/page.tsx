@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -18,10 +18,23 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [referralCode, setReferralCode] = useState("")
+  const [isReferralProgramEnabled, setIsReferralProgramEnabled] = useState(false)
   
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    const API_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api"
+    const referralCodeFromLink = new URLSearchParams(window.location.search).get("ref")
+    if (referralCodeFromLink) setReferralCode(referralCodeFromLink.toUpperCase())
+
+    fetch(`${API_URL}/system/config`)
+      .then((response) => response.json())
+      .then((payload) => setIsReferralProgramEnabled(payload?.data?.features?.enableReferralProgram === true))
+      .catch(() => setIsReferralProgramEnabled(false))
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,6 +54,9 @@ export default function RegisterPage() {
           phone,
           email,
           password,
+          ...(isReferralProgramEnabled && referralCode.trim()
+            ? { referredByCode: referralCode.trim().toUpperCase() }
+            : {}),
         }),
       })
 
@@ -162,6 +178,19 @@ export default function RegisterPage() {
               </button>
             </div>
           </div>
+
+          {isReferralProgramEnabled && (
+            <div className="space-y-2">
+              <label htmlFor="referralCode" className="text-sm font-semibold text-foreground/80">Referral code <span className="font-normal text-muted-foreground">(optional)</span></label>
+              <Input
+                id="referralCode"
+                placeholder="UFIT-ABCD-123ABC"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                className="h-12 rounded-xl font-mono uppercase"
+              />
+            </div>
+          )}
           
           <Button type="submit" className="w-full h-12 rounded-xl" disabled={isLoading || success}>
             {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account...</> : "Sign Up"}

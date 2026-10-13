@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { UfitGoLogo } from "@/components/ufitgo-logo"
-import { History, Settings, HelpCircle, IdCard, Home, Package, Briefcase, Bell, LogOut } from "lucide-react"
+import { History, Settings, HelpCircle, IdCard, Home, Package, Briefcase, Bell, LogOut, Gift } from "lucide-react"
 import { useEffect, useState } from "react"
 import {
   Dialog,
@@ -38,6 +38,7 @@ const sidebarSections = [
     title: "SERVICES",
     links: [
       { name: "Passport Assistance", href: "/passport", icon: IdCard },
+      { name: "Refer & earn", href: "/referrals", icon: Gift },
     ]
   },
   {
@@ -52,6 +53,15 @@ export function DashboardSidebarContent() {
   const { data: session } = useSession()
   const pathname = usePathname()
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+  const [isReferralProgramEnabled, setIsReferralProgramEnabled] = useState(false)
+
+  useEffect(() => {
+    const API_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api"
+    fetch(`${API_URL}/system/config`)
+      .then((response) => response.json())
+      .then((payload) => setIsReferralProgramEnabled(payload?.data?.features?.enableReferralProgram === true))
+      .catch(() => setIsReferralProgramEnabled(false))
+  }, [])
 
   return (
     <div className="flex h-full flex-col">
@@ -87,13 +97,14 @@ export function DashboardSidebarContent() {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto px-4 py-2 scrollbar-hide">
-        {sidebarSections.map((section, idx) => (
-          <div key={idx} className="mb-6">
+        {sidebarSections.map((section) => (
+          <div key={section.title} className="mb-6">
             <h4 className="mb-2 px-2 text-xs font-semibold tracking-wider text-muted-foreground/70">
               {section.title}
             </h4>
             <div className="space-y-1">
               {section.links.map((link) => {
+                if (link.href === "/referrals" && !isReferralProgramEnabled) return null
                 const isActive = pathname.startsWith(link.href)
                 const Icon = link.icon
                 return (
