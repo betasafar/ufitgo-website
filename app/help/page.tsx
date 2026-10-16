@@ -83,11 +83,11 @@ export default function SupportPage() {
                     <h3 className="font-semibold">Main Office</h3>
                   </div>
                   <address className="mt-3 not-italic leading-7 text-slate-600">
-                    Shop 47 First Floor, Off Awodi-Ora Estate, Oja Market,<br />
+                    Shop AWM-D-FF-3, Off Awodi-Ora Estate, Oja Market,<br />
                     Ajeromi-Ifelodun, Lagos.
                   </address>
                   <a
-                    href="https://www.google.com/maps/search/?api=1&query=Shop%2047%20First%20Floor%2C%20Off%20Awodi-Ora%20Estate%2C%20Oja%20Market%2C%20Ajeromi-Ifelodun%2C%20Lagos"
+                    href="https://www.google.com/maps/search/?api=1&query=Shop%20AWM-D-FF-3%2C%20Off%20Awodi-Ora%20Estate%2C%20Oja%20Market%2C%20Ajeromi-Ifelodun%2C%20Lagos"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:underline"
@@ -96,7 +96,7 @@ export default function SupportPage() {
                   </a>
                 </div>
 
-                <div className="border-l-2 border-primary pl-5">
+                {/* <div className="border-l-2 border-primary pl-5">
                   <div className="flex items-center gap-2 text-slate-900">
                     <MapPin className="h-5 w-5 text-primary" />
                     <h3 className="font-semibold">Branch Office</h3>
@@ -113,7 +113,7 @@ export default function SupportPage() {
                   >
                     Get directions <ArrowRight className="ml-1 h-4 w-4" />
                   </a>
-                </div>
+                </div> */}
               </div>
             </section>
 
