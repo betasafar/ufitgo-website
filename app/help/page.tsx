@@ -83,7 +83,7 @@ export default function SupportPage() {
                     <h3 className="font-semibold">Main Office</h3>
                   </div>
                   <address className="mt-3 not-italic leading-7 text-slate-600">
-                    Shop AWM-D-FF-3, Off Awodi-Ora Estate, Oja Market,<br />
+                    First floor Shop AWM-D-FF-3, Off Awodi-Ora Estate, Oja Market,<br />
                     Ajeromi-Ifelodun, Lagos.
                   </address>
                   <a
