@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Menu, X } from "lucide-react"
+import { CircleUserRound, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
@@ -11,8 +11,6 @@ import { cn } from "@/lib/utils"
 const navLinks = [
   { label: "Packages", href: "/packages" },
   { label: "Operators", href: "/operators" },
-  // { label: "Services", href: "/#services" },
-  { label: "Why UfitGo", href: "/#why" },
   { label: "Mobile app", href: "/#mobile-app" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Become a Partner", href: "/#operators" },
@@ -52,7 +50,7 @@ export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentO
             <UfitGoLogo className="h-8 w-auto transition-colors duration-300" isLight={isTransparent} />
           </a>
 
-          <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+          <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary">
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -67,22 +65,22 @@ export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentO
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-3 lg:flex">
             <Link
               href={session ? "/dashboard" : "/login"}
               className={cn(
-                buttonVariants({ variant: "outline" }),
-                "rounded-full h-10 px-6 font-semibold transition-all duration-300",
+                session
+                  ? "inline-flex size-10 items-center justify-center rounded-full border transition-all duration-300"
+                  : "text-sm font-semibold transition-colors duration-300",
                 isTransparent
-                  ? "border-white/30 text-white hover:bg-white/10 bg-transparent"
-                  : "border-zinc-600 bg-transparent hover:bg-secondary text-foreground"
+                  ? "border-white/30 text-white hover:bg-white/10"
+                  : "border-zinc-600 text-foreground hover:bg-secondary"
               )}
+              title={session ? "My dashboard" : "Sign in"}
+              aria-label={session ? "My dashboard" : "Sign in"}
             >
-              {session ? "My dashboard" : "Sign in"}
+              {session ? <CircleUserRound className="size-5" /> : "Sign in"}
             </Link>
-            <a href="/packages" className={cn(buttonVariants(), "rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-semibold transition-colors")}>
-              Explore Packages
-            </a>
           </div>
 
           <button
@@ -145,13 +143,6 @@ export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentO
             >
               {session ? "My dashboard" : "Sign in"}
             </Link>
-            <a
-              href="/packages"
-              onClick={() => setOpen(false)}
-              className={cn(buttonVariants(), "w-full h-12 text-base")}
-            >
-              Explore Packages
-            </a>
           </div>
         </nav>
       </div>

@@ -32,41 +32,40 @@ export function MobileAppCta() {
   }
 
   return (
-    <section id="mobile-app" className="overflow-hidden bg-zinc-950 py-16 sm:py-24">
+    <section id="mobile-app" className="overflow-hidden bg-[#f4efe1] py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative grid items-center gap-12 rounded-3xl bg-zinc-900 px-6 py-12 sm:px-12 sm:py-16 lg:grid-cols-2 lg:gap-8">
-          
-          {/* Subtle background glow */}
-          <div className="absolute inset-0 -z-10 rounded-3xl bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50 blur-2xl"></div>
+        <div className="relative grid items-center gap-10 overflow-hidden rounded-2xl border border-[#cbdcd2] bg-[#e4f0e8] px-6 py-10 shadow-[0_24px_60px_rgba(16,44,41,0.12)] sm:px-12 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
+          <div className="absolute inset-x-0 top-0 h-2 bg-[#d1b874]" aria-hidden="true" />
+          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full border-[28px] border-[#c6dfd0] opacity-70" aria-hidden="true" />
 
           {/* Text Content */}
-          <ScrollReveal className="max-w-xl mx-auto lg:mx-0 text-left">
-            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-xs font-medium text-zinc-300">
-              <Smartphone className="h-4 w-4 text-primary" />
+          <ScrollReveal className="relative z-10 mx-auto max-w-xl text-left lg:mx-0">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#afc9bb] bg-[#f9f5e9] px-3 py-1.5 text-xs font-semibold text-[#0b3a35]">
+              <Smartphone className="h-4 w-4 text-[#0b6b5d]" />
               UfitGo mobile app
             </span>
             
-            <h2 className="mt-6 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Take UfitGo with you
+            <h2 className="mt-5 font-serif text-3xl font-semibold leading-tight tracking-tight text-[#102c29] sm:text-4xl lg:text-5xl">
+              Your journey, always within reach
             </h2>
             
-            <p className="mt-4 text-lg leading-relaxed text-zinc-400">
+            <p className="mt-4 text-base leading-relaxed text-[#41625b] sm:text-lg">
               Plan journeys, manage bookings, track travel savings, and compare packages wherever you are.
             </p>
 
             <form onSubmit={subscribe} className="mt-8 max-w-md">
-              <label htmlFor="app-launch-email" className="text-sm font-semibold text-white">Get launch updates</label>
+              <label htmlFor="app-launch-email" className="text-sm font-bold text-[#102c29]">Get launch updates</label>
               <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-                <input id="app-launch-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required className="h-12 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-4 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-primary" />
-                <button type="submit" disabled={status === "submitting"} className="h-12 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70">{status === "submitting" ? "Joining..." : "Notify me"}</button>
+                <input id="app-launch-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required className="min-h-12 min-w-0 flex-1 rounded-lg border border-[#afc9bb] bg-white px-4 py-3 text-sm text-[#102c29] placeholder:text-[#739189] outline-none focus:border-[#0b6b5d] focus:ring-2 focus:ring-[#0b6b5d]/15" />
+                <button type="submit" disabled={status === "submitting"} className="h-12 rounded-lg bg-[#0b3a35] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0b6b5d] disabled:cursor-not-allowed disabled:opacity-70">{status === "submitting" ? "Joining..." : "Notify me"}</button>
               </div>
-              <p className="mt-3 text-xs leading-5 text-zinc-500">By joining, you agree to receive one-time UfitGo app-launch updates. You can unsubscribe at any time.</p>
-              {message && <p role="status" className={`mt-3 text-sm ${status === "success" ? "text-emerald-300" : "text-red-300"}`}>{message}</p>}
+              <p className="mt-3 text-xs leading-5 text-[#58776e]">By joining, you agree to receive one-time UfitGo app-launch updates. You can unsubscribe at any time.</p>
+              {message && <p role="status" className={`mt-3 text-sm ${status === "success" ? "text-[#087260]" : "text-red-700"}`}>{message}</p>}
             </form>
           </ScrollReveal>
 
           {/* App Mockup Image / Simulator */}
-          <div className="hidden lg:block relative mx-auto w-full max-w-[280px] lg:ml-auto lg:max-w-[320px]">
+          <div className="relative z-10 mx-auto w-full max-w-[220px] sm:max-w-[250px] lg:ml-auto lg:max-w-[320px]">
             <div className="relative aspect-[1/2.15] w-full overflow-hidden rounded-[2.5rem] border-[8px] border-zinc-950 bg-zinc-50 shadow-2xl flex flex-col">
               {/* iPhone Notch */}
               <div className="absolute top-0 inset-x-0 h-6 bg-zinc-950 rounded-b-3xl w-32 mx-auto z-20"></div>
