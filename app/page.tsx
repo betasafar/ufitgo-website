@@ -37,12 +37,12 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <Hero />
+        <MobileAppCta />
         <FeaturedPackages />
         <ServicesSection />
         <WhyUfitGo />
         <HowItWorks />
         {/* <TargetSavingsCta /> */}
-        <MobileAppCta />
         <OperatorCta />
       </main>
       <SiteFooter />

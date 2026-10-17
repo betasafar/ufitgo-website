@@ -1,9 +1,36 @@
-import Image from "next/image"
-import { Smartphone, Download, Star } from "lucide-react"
-import { cn } from "@/lib/utils"
+"use client"
+
+import { FormEvent, useState } from "react"
+import { Smartphone } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
 
 export function MobileAppCta() {
+  const [email, setEmail] = useState("")
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
+  const [message, setMessage] = useState("")
+
+  const subscribe = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setStatus("submitting")
+    setMessage("")
+
+    try {
+      const response = await fetch("/api/app-launch-waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      const payload = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(payload?.message || "Unable to join the launch list.")
+      setEmail("")
+      setStatus("success")
+      setMessage("You are on the list. We will email you when UfitGo is ready for you.")
+    } catch (error) {
+      setStatus("error")
+      setMessage(error instanceof Error ? error.message : "Unable to join the launch list.")
+    }
+  }
+
   return (
     <section id="mobile-app" className="overflow-hidden bg-zinc-950 py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -16,7 +43,7 @@ export function MobileAppCta() {
           <ScrollReveal className="max-w-xl mx-auto lg:mx-0 text-left">
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-xs font-medium text-zinc-300">
               <Smartphone className="h-4 w-4 text-primary" />
-              Coming Soon to iOS & Android
+              UfitGo mobile app
             </span>
             
             <h2 className="mt-6 font-serif text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
@@ -24,43 +51,18 @@ export function MobileAppCta() {
             </h2>
             
             <p className="mt-4 text-lg leading-relaxed text-zinc-400">
-              Manage your Hajj and Umrah bookings, compare packages on the go, and chat with your verified operators directly from your pocket. 
+              Plan journeys, manage bookings, track travel savings, and compare packages wherever you are.
             </p>
 
-            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row lg:justify-start">
-              {/* Fake App Store Button */}
-              <button className="flex h-14 w-full max-w-[200px] items-center justify-center gap-3 rounded-xl bg-zinc-800 px-4 text-white transition-colors hover:bg-zinc-700 sm:w-auto">
-                <svg viewBox="0 0 384 512" className="h-7 w-7 fill-current" aria-hidden="true">
-                  <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[10px] leading-tight text-zinc-300">Download on the</div>
-                  <div className="text-sm font-semibold leading-tight">App Store</div>
-                </div>
-              </button>
-
-              {/* Fake Play Store Button */}
-              <button className="flex h-14 w-full max-w-[200px] items-center justify-center gap-3 rounded-xl bg-zinc-800 px-4 text-white transition-colors hover:bg-zinc-700 sm:w-auto">
-                <svg viewBox="0 0 512 512" className="h-7 w-7 fill-current" aria-hidden="true">
-                  <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z" />
-                </svg>
-                <div className="text-left">
-                  <div className="text-[10px] leading-tight text-zinc-300">GET IT ON</div>
-                  <div className="text-sm font-semibold leading-tight">Google Play</div>
-                </div>
-              </button>
-            </div>
-            
-            <div className="mt-8 flex items-center justify-start gap-4 text-sm text-zinc-400 lg:justify-start">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="inline-block h-8 w-8 rounded-full border-2 border-zinc-900 bg-zinc-700" />
-                ))}
+            <form onSubmit={subscribe} className="mt-8 max-w-md">
+              <label htmlFor="app-launch-email" className="text-sm font-semibold text-white">Get launch updates</label>
+              <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+                <input id="app-launch-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required className="h-12 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-4 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-primary" />
+                <button type="submit" disabled={status === "submitting"} className="h-12 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70">{status === "submitting" ? "Joining..." : "Notify me"}</button>
               </div>
-              <div>
-                Join <span className="font-semibold text-white">5,000+</span> pilgrims
-              </div>
-            </div>
+              <p className="mt-3 text-xs leading-5 text-zinc-500">By joining, you agree to receive one-time UfitGo app-launch updates. You can unsubscribe at any time.</p>
+              {message && <p role="status" className={`mt-3 text-sm ${status === "success" ? "text-emerald-300" : "text-red-300"}`}>{message}</p>}
+            </form>
           </ScrollReveal>
 
           {/* App Mockup Image / Simulator */}

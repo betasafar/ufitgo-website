@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Operators", href: "/operators" },
   // { label: "Services", href: "/#services" },
   { label: "Why UfitGo", href: "/#why" },
+  { label: "Mobile app", href: "/#mobile-app" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Become a Partner", href: "/#operators" },
 ]
