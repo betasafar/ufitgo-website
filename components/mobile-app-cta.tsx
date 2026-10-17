@@ -32,7 +32,7 @@ export function MobileAppCta() {
   }
 
   return (
-    <section id="mobile-app" className="overflow-hidden bg-[#f4efe1] py-16 sm:py-24">
+    <section id="mobile-app" className="scroll-mt-20 overflow-hidden bg-[#f4efe1] py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative grid items-center gap-10 overflow-hidden rounded-2xl border border-[#cbdcd2] bg-[#e4f0e8] px-6 py-10 shadow-[0_24px_60px_rgba(16,44,41,0.12)] sm:px-12 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
           <div className="absolute inset-x-0 top-0 h-2 bg-[#d1b874]" aria-hidden="true" />

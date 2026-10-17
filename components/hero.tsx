@@ -85,9 +85,9 @@ export function Hero() {
             <ArrowRight className="h-4 w-4 ml-1" />
           </a> */}
           <a
-            href="/#how-it-works"
+            href="/#mobile-app"
             className={cn(buttonVariants({ size: "lg", variant: "outline" }), "rounded-full h-14 px-12 text-base font-semibold w-full sm:w-auto border-zinc-600 bg-transparent text-white hover:bg-zinc-800 hover:text-white")}>
-            How It Works
+            Get the app
           </a>
         </div>
 

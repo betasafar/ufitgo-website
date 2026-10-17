@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils"
 const navLinks = [
   { label: "Packages", href: "/packages" },
   { label: "Operators", href: "/operators" },
-  { label: "Mobile app", href: "/#mobile-app" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Become a Partner", href: "/#operators" },
 ]
