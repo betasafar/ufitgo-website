@@ -63,9 +63,8 @@ export function Hero() {
           <ShieldCheck className="h-4 w-4" />
           Target savings securely held via trusted tier-1 banking partners
         </span> */}
-
         <h1 className="animate-fade-up delay-200 mt-8 text-balance font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl max-w-4xl mx-auto">
-            Discover. Book. <span className="text-yellow-500">Experience.</span>
+            Discover. Book. Experience. <span className="text-yellow-500">Repeat.</span>
         </h1>
 
         <p className="animate-fade-up delay-300 mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-zinc-400 sm:text-xl">
