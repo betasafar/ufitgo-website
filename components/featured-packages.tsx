@@ -3,36 +3,18 @@ import { PackageCard } from "@/components/package-card"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { RetryButton } from "@/components/retry-button"
 import { revalidatePackages } from "@/app/actions"
-import { fetchPublicPackages } from "@/lib/api"
-import { type Package } from "@/lib/packages"
-import { resolvePackageImage } from "@/lib/package-image"
+import { fetchPublicHomeFeed } from "@/lib/api"
+import { mapPublicPackage } from "@/lib/packages"
+import { type HomeSection, packageCollectionHref } from "@/lib/package-discovery"
 
 export async function FeaturedPackages() {
-  let packages: Package[] = []
+  let sections: HomeSection[] = []
   let error = false
 
   try {
-    const data = await fetchPublicPackages(1, 3)
-    // Format API data to match frontend Package interface
-    packages = data?.data?.map((apiPkg: any) => ({
-      id: apiPkg.id.toString(),
-      name: apiPkg.title,
-      type: apiPkg.type,
-      category: apiPkg.serviceLevel,
-      operator: apiPkg.operator,
-      priceFrom: parseFloat(apiPkg.price),
-      duration: apiPkg.duration,
-      departureDate: apiPkg.departureDate,
-      departureCity: apiPkg.departingFrom?.split(',')[0] || "Unknown",
-      highlights: apiPkg.inclusions || [],
-      heroImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title, apiPkg.slug),
-      cardImage: resolvePackageImage(apiPkg.images?.[0], apiPkg.title, apiPkg.slug),
-      capacity: apiPkg.capacity == null ? undefined : Number(apiPkg.capacity),
-      booked: apiPkg.booked == null ? undefined : Number(apiPkg.booked),
-      remainingSlots: apiPkg.remainingSlots == null ? undefined : Number(apiPkg.remainingSlots),
-      salesStatus: apiPkg.salesStatus,
-      availabilityStatus: apiPkg.availabilityStatus,
-    })) || []
+    const data = await fetchPublicHomeFeed()
+    // This is the website's existing experience placement, not a mobile Home replacement.
+    sections = data.sections.filter((section) => section.kind !== "advert")
   } catch (e) {
     error = true
   }
@@ -56,12 +38,27 @@ export async function FeaturedPackages() {
             <RetryButton action={revalidatePackages} />
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {packages.map((pkg, i) => (
-              <ScrollReveal key={pkg.id} delay={i * 150 + 100} className="h-full">
-                <PackageCard pkg={pkg} noImage />
-              </ScrollReveal>
+          <div className="space-y-12">
+            {sections.map((section) => (
+              <div key={section.id}>
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <h3 className="text-2xl font-serif font-semibold">{section.title}</h3>
+                  <a href={packageCollectionHref(section.filters)} className="inline-flex items-center gap-2 text-sm">
+                    See all <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+                {section.packages.length ? (
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {section.packages.map(mapPublicPackage).map((pkg, i) => (
+                      <ScrollReveal key={pkg.id} delay={i * 150 + 100} className="h-full">
+                        <PackageCard pkg={pkg} noImage />
+                      </ScrollReveal>
+                    ))}
+                  </div>
+                ) : <p className="text-white/70">No experiences currently available in this collection.</p>}
+              </div>
             ))}
+            {!sections.length && <p className="text-white/70">No featured experiences currently available.</p>}
           </div>
         )}
 

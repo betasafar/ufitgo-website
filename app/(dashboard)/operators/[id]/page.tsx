@@ -52,8 +52,11 @@ export default async function OperatorDetailsPage({
   const packages = (operatorDetails.packages || []).map((apiPkg: any) => ({
     id: String(apiPkg.id ?? `${operatorDetails.id}-${apiPkg.slug || apiPkg.title || apiPkg.name || "package"}`),
     name: apiPkg.title || apiPkg.name,
-    type: apiPkg.type || "Umrah",
-    category: apiPkg.serviceLevel || apiPkg.category || "Standard",
+    type: apiPkg.type || "",
+    season: apiPkg.season ?? null,
+    seasonYear: apiPkg.seasonYear ?? null,
+    serviceLevel: apiPkg.serviceLevel,
+    category: apiPkg.serviceLevel || "Standard",
     operator: {
       name: nameToDisplay,
       verified: isVerified

@@ -27,8 +27,11 @@ export type Operator = {
 export type Package = {
   id: string // Using string for frontend routing ease, though API is number
   name: string // API: title
-  type: PilgrimageType
-  category: string // API: serviceLevel (premium, family, economy)
+  type: string
+  season?: "ramadan" | null
+  seasonYear?: number | null
+  serviceLevel?: string
+  category: string // Compatibility alias for serviceLevel, never pilgrimage type
   operator: Operator
   priceFrom: number // API: price
   priceOnRequest?: boolean
@@ -100,12 +103,22 @@ export async function getPackage(id: string): Promise<Package | null> {
     const json = await res.json()
     if (!json.success || !json.data) return null
     
-    const p = json.data
+    return mapPublicPackage(json.data)
+  } catch (error) {
+    console.error("Failed to fetch package:", error)
+    return null
+  }
+}
+
+export function mapPublicPackage(p: any): Package {
     return {
       id: String(p.id),
       name: p.title,
-      type: "umrah", // Hardcoded fallback or derive from title
-      category: p.serviceLevel || "premium",
+      type: p.type || "",
+      season: p.season ?? null,
+      seasonYear: p.seasonYear ?? null,
+      serviceLevel: p.serviceLevel,
+      category: p.serviceLevel || "standard",
       operator: {
         id: p.operator?.id || 1,
         name: p.operator?.companyName || p.operator?.name || "Unknown Operator",
@@ -115,9 +128,10 @@ export async function getPackage(id: string): Promise<Package | null> {
         reviews: 0
       },
       priceFrom: Number(p.price || 0),
+      priceOnRequest: Boolean(p.priceOnRequest) || (Number(p.price) <= 0 && !(p.tiers || []).some((tier: any) => Number(tier?.price) > 0)),
       duration: p.duration || 10,
-      departureDate: p.departureDate || "TBD",
-      departureCity: p.departingFrom || "Lagos",
+      departureDate: p.departureDate || "",
+      departureCity: p.departingFrom?.split(",")[0] || "Unknown",
       highlights: p.inclusions || [],
       heroImage: resolvePackageImage(p.images?.[0], p.title, p.slug),
       cardImage: resolvePackageImage(p.images?.[0], p.title, p.slug),
@@ -135,10 +149,6 @@ export async function getPackage(id: string): Promise<Package | null> {
       discountPilgrimThreshold: Number(p.discountPilgrimThreshold || 0),
       discountPercentage: Number(p.discountPercentage || 0)
     }
-  } catch (error) {
-    console.error("Failed to fetch package:", error)
-    return null
-  }
 }
 
 export function formatNaira(amount: number) {

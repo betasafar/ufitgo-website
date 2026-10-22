@@ -1,12 +1,14 @@
+import { discoveryQuery, type DiscoveryFilters, type DiscoveryMetadata, type HomeSection } from "./package-discovery"
+
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api/operator"
 
-export async function fetchPublicPackages(page = 1, limit = 10, options?: RequestInit) {
+export async function fetchPublicPackages(page = 1, limit = 10, options?: RequestInit, filters: DiscoveryFilters = {}) {
   try {
-    const url = `${API_BASE_URL}/packages/public?page=${page}&limit=${limit}`;
+    const url = `${API_BASE_URL}/packages/public?page=${page}&limit=${limit}&${discoveryQuery(filters)}`;
     console.log(`[fetchPublicPackages] Fetching: ${url}`);
     
     const response = await fetch(url, {
-      next: { revalidate: 3600 },
+      cache: "no-store",
       ...options,
     })
     
@@ -14,11 +16,29 @@ export async function fetchPublicPackages(page = 1, limit = 10, options?: Reques
       console.error(`[fetchPublicPackages] Failed with status: ${response.status} ${response.statusText}`);
       throw new Error('Failed to fetch packages')
     }
+
     return await response.json()
   } catch (error) {
     console.error(`[fetchPublicPackages] Exception caught:`, error);
     throw error;
   }
+}
+
+export async function fetchPackageDiscovery(filters: DiscoveryFilters): Promise<DiscoveryMetadata> {
+  const query = discoveryQuery({ type: filters.type, season: filters.season })
+  const response = await fetch(`${API_BASE_URL}/packages/public/discovery?${query}`, { cache: "no-store" })
+  if (!response.ok) throw new Error("Failed to load package discovery options")
+  const result = await response.json()
+  if (!result.success || !result.data) throw new Error("Invalid package discovery response")
+  return result.data
+}
+
+export async function fetchPublicHomeFeed(): Promise<{ sections: HomeSection[]; configVersion: unknown; generatedAt: string }> {
+  const response = await fetch(`${API_BASE_URL}/packages/public/home-feed`, { cache: "no-store" })
+  if (!response.ok) throw new Error("Failed to load featured experiences")
+  const result = await response.json()
+  if (!result.success || !Array.isArray(result.data?.sections)) throw new Error("Invalid Home feed response")
+  return result.data
 }
 
 export async function fetchPackageComparison(id: string) {

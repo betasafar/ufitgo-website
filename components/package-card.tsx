@@ -106,7 +106,7 @@ export function PackageCard({ pkg, noImage = false }: { pkg: Package; noImage?: 
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <CalendarDays className="h-4 w-4 shrink-0 text-primary/70" />
-            <dd>{pkg.departureDate}</dd>
+            <dd>{pkg.departureDate || "Dates to be announced"}</dd>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground col-span-2">
             <MapPin className="h-4 w-4 shrink-0 text-primary/70" />

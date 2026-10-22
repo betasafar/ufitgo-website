@@ -1,235 +1,111 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import Link from "next/link"
+import { useState } from "react"
 import { Search, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react"
-import { Package } from "@/lib/packages"
+import { type Package } from "@/lib/packages"
+import { type DiscoveryFilters, type DiscoveryMetadata, packageCollectionHref } from "@/lib/package-discovery"
 import { PackageCard } from "@/components/package-card"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-export function BrowsePackagesClient({ initialPackages }: { initialPackages: Package[] }) {
-  const [searchQuery, setSearchQuery] = useState("")
-  
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-  const [selectedMonths, setSelectedMonths] = useState<string[]>([])
-  const [selectedCities, setSelectedCities] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [maxBudget, setMaxBudget] = useState<number | "">("")
-  
+export function BrowsePackagesClient({ initialPackages, discovery, filters }: {
+  initialPackages: Package[]
+  discovery: DiscoveryMetadata
+  filters: DiscoveryFilters
+}) {
   const [showFilters, setShowFilters] = useState(false)
-
-  // Extract unique values for filters
-  const types = Array.from(new Set(initialPackages.map((p) => p.type)))
-  const months = Array.from(new Set(initialPackages.map((p) => {
-    if (!p.departureDate) return "Unknown"
-    try {
-      return new Date(p.departureDate).toLocaleString('default', { month: 'long', year: 'numeric' })
-    } catch {
-      return "Unknown"
-    }
-  })))
-  const cities = Array.from(new Set(initialPackages.map((p) => p.departureCity)))
-  const categories = Array.from(new Set(initialPackages.map((p) => p.category)))
-
-  const toggleFilter = (
-    current: any[],
-    setFn: (val: any[]) => void,
-    item: any
-  ) => {
-    if (current.includes(item)) {
-      setFn(current.filter((c) => c !== item))
-    } else {
-      setFn([...current, item])
-    }
-  }
-
-  const filteredPackages = useMemo(() => {
-    return initialPackages.filter((pkg) => {
-      const monthStr = pkg.departureDate ? new Date(pkg.departureDate).toLocaleString('default', { month: 'long', year: 'numeric' }) : "Unknown"
-
-      // Search
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        const matchName = pkg.name.toLowerCase().includes(query)
-        const matchOperator = pkg.operator?.name?.toLowerCase().includes(query)
-        const matchCity = pkg.departureCity.toLowerCase().includes(query)
-        const matchDate = pkg.departureDate?.toLowerCase().includes(query) || monthStr.toLowerCase().includes(query)
-        
-        if (!matchName && !matchOperator && !matchCity && !matchDate) {
-          return false
-        }
-      }
-
-      // Filters
-      if (selectedTypes.length > 0 && !selectedTypes.includes(pkg.type)) return false
-      if (selectedMonths.length > 0 && !selectedMonths.includes(monthStr)) return false
-      if (selectedCities.length > 0 && !selectedCities.includes(pkg.departureCity)) return false
-      if (selectedCategories.length > 0 && !selectedCategories.includes(pkg.category)) return false
-      if (maxBudget !== "" && pkg.priceFrom > maxBudget) return false
-
-      return true
-    })
-  }, [initialPackages, searchQuery, selectedTypes, selectedMonths, selectedCities, selectedCategories, maxBudget])
-
+  const seasonal = filters.type === "hajj" || filters.season === "ramadan"
+  const [yearMode, setYearMode] = useState<string>(filters.yearMode || "default")
+  const allYearsHref = packageCollectionHref({ ...filters, yearMode: "all", seasonYear: undefined, year: undefined })
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-
-
       <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* Mobile Filter Toggle */}
         <div className="lg:hidden">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground shadow-sm"
-          >
-            <span className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-            </span>
+          <button onClick={() => setShowFilters(!showFilters)} className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium">
+            <span className="flex items-center gap-2"><SlidersHorizontal className="h-4 w-4" />Filters</span>
             {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
         </div>
-
-        {/* Sidebar Filters */}
-        <aside className={cn(
-          "w-full lg:w-64 shrink-0 space-y-8 border-b border-border pb-8 lg:border-b-0 lg:border-r lg:pr-8 lg:pb-0",
-          showFilters ? "block" : "hidden lg:block"
-        )}>
+        <aside className={cn("w-full lg:w-64 shrink-0 space-y-6 border-b border-border pb-8 lg:border-b-0 lg:border-r lg:pr-8", showFilters ? "block" : "hidden lg:block")}>
           <div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search packages..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-          </div>
-
-          <div>
-            <h3 className="mb-4 flex items-center gap-2 font-medium">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-            </h3>
-
-            <div className="space-y-6">
-              {/* Type Filter */}
-              <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Package Type</h4>
-                <div className="space-y-2">
-                  {types.map((type) => (
-                    <label key={type} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={selectedTypes.includes(type)}
-                        onChange={() => toggleFilter(selectedTypes, setSelectedTypes, type)}
-                        className="rounded border-input text-primary focus:ring-primary"
-                      />
-                      <span className="capitalize">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Budget Filter */}
-              <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Max Budget (₦)</h4>
-                <Input
-                  type="number"
-                  placeholder="Any budget"
-                  value={maxBudget}
-                  onChange={(e) => setMaxBudget(e.target.value === "" ? "" : Number(e.target.value))}
-                />
-              </div>
-
-              {/* Month Filter */}
-              <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Departure Month</h4>
-                <div className="space-y-2">
-                  {months.map((month) => (
-                    <label key={month} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={selectedMonths.includes(month)}
-                        onChange={() => toggleFilter(selectedMonths, setSelectedMonths, month)}
-                        className="rounded border-input text-primary focus:ring-primary"
-                      />
-                      <span>{month}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category Filter */}
-              <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Category</h4>
-                <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <label key={cat} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(cat)}
-                        onChange={() => toggleFilter(selectedCategories, setSelectedCategories, cat)}
-                        className="rounded border-input text-primary focus:ring-primary"
-                      />
-                      <span className="capitalize">{cat}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Departure City Filter */}
-              <div>
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Departure City</h4>
-                <div className="space-y-2">
-                  {cities.map((city) => (
-                    <label key={city} className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={selectedCities.includes(city)}
-                        onChange={() => toggleFilter(selectedCities, setSelectedCities, city)}
-                        className="rounded border-input text-primary focus:ring-primary"
-                      />
-                      <span>{city}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Results */}
-        <div className="flex-1">
-          <div className="mb-4 flex items-center justify-between text-sm text-muted-foreground">
-            <span>Showing {filteredPackages.length} package{filteredPackages.length !== 1 ? 's' : ''}</span>
-          </div>
-
-          {filteredPackages.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredPackages.map((pkg) => (
-                <PackageCard key={pkg.id} pkg={pkg} />
+            <h2 className="text-sm font-medium mb-3">Package type</h2>
+            <div className="flex flex-wrap gap-2">
+              {discovery.categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={category.id === "all" ? "/packages" : packageCollectionHref(category.id === "ramadan"
+                    ? { type: "umrah", season: "ramadan", yearMode: "default" }
+                    : { type: category.id, yearMode: "default" })}
+                  aria-current={(category.id === "all" ? !filters.type : category.id === "ramadan" ? filters.season === "ramadan" : filters.type === category.id && !filters.season) ? "page" : undefined}
+                  className="rounded-lg border px-3 py-2 text-sm aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground"
+                >{category.label}</Link>
               ))}
             </div>
+          </div>
+          <form action="/packages" method="get" key={JSON.stringify(filters)} className="space-y-5">
+            {filters.type && <input type="hidden" name="type" value={filters.type} />}
+            {filters.season && <input type="hidden" name="season" value={filters.season} />}
+            <label className="block text-sm space-y-2">
+              <span className="flex items-center gap-2"><Search className="h-4 w-4" />Package title</span>
+              <Input name="title" defaultValue={filters.title} placeholder="Search packages..." />
+            </label>
+            <label className="block text-sm space-y-2">
+              <span>Year</span>
+              <select name="yearMode" value={yearMode} onChange={(e) => setYearMode(e.target.value)} className="w-full rounded-md border bg-background p-2">
+                <option value="default">{seasonal ? `Configured season${discovery.defaultYear ? ` (${discovery.defaultYear})` : ""}` : "All upcoming dates"}</option>
+                <option value="all">All upcoming years</option>
+                <option value="specific">Choose a year</option>
+              </select>
+            </label>
+            {yearMode === "specific" && (
+              <label className="block text-sm space-y-2">
+                <span>{seasonal ? "Selling season year" : "Departure year"}</span>
+                <select name={seasonal ? "seasonYear" : "year"} defaultValue={filters.seasonYear ?? filters.year ?? ""} required className="w-full rounded-md border bg-background p-2">
+                  <option value="" disabled>Select a year</option>
+                  {Array.from(new Set([...discovery.years, ...(filters.seasonYear ? [filters.seasonYear] : []), ...(filters.year ? [filters.year] : [])])).map((year) => (
+                    <option key={year} value={year}>{year}{discovery.counts.find((item) => item.year === year) ? ` (${discovery.counts.find((item) => item.year === year)!.count})` : ""}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <label className="block text-sm space-y-2"><span>Max budget (₦)</span><Input name="budget" type="number" min="0" defaultValue={filters.budget} placeholder="Any budget" /></label>
+            <label className="block text-sm space-y-2">
+              <span>Service level</span>
+              <select name="serviceLevel" defaultValue={filters.serviceLevel || ""} className="w-full rounded-md border bg-background p-2">
+                <option value="">Any service level</option>
+                {["standard", "family", "vip", "economy", "budget", "premium", "luxury"].map((level) => <option key={level} value={level}>{level}</option>)}
+              </select>
+            </label>
+            <label className="block text-sm space-y-2"><span>Departure location</span><Input name="location" defaultValue={filters.location} placeholder="Any location" /></label>
+            <label className="block text-sm space-y-2">
+              <span>Departure month</span>
+              <select name="month" defaultValue={filters.month || ""} className="w-full rounded-md border bg-background p-2">
+                <option value="">Any month</option>
+                {["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"].map((month) => <option key={month} value={month}>{month}</option>)}
+              </select>
+            </label>
+            <button type="submit" className="rounded-lg bg-primary text-primary-foreground px-4 py-2">Apply filters</button>
+            <Link href="/packages" className="ml-4 text-sm underline">Reset</Link>
+          </form>
+        </aside>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl font-semibold mb-3">Browse packages</h1>
+          {seasonal && filters.yearMode === "default" && (
+            <p className="text-sm text-muted-foreground mb-4">
+              {discovery.defaultYear ? `Selling season ${discovery.defaultYear}` : "No default selling season available"} · {discovery.source}
+              {discovery.source === "fallback" && discovery.configuredYear != null && ` (configured: ${discovery.configuredYear})`}
+            </p>
+          )}
+          {discovery.warnings.map((warning, index) => <p key={index} role="status" className="text-sm text-amber-700 mb-2">{warning}</p>)}
+          <p className="text-sm text-muted-foreground mb-6">{initialPackages.length} packages on this page</p>
+          {initialPackages.length ? (
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">{initialPackages.map((pkg) => <PackageCard key={pkg.id} pkg={pkg} />)}</div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-20 text-center">
-              <p className="text-lg font-medium text-foreground">No packages found</p>
-              <p className="mt-1 text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
-              <button
-                onClick={() => {
-                  setSearchQuery("")
-                  setSelectedTypes([])
-                  setSelectedMonths([])
-                  setSelectedCities([])
-                  setSelectedCategories([])
-                  setMaxBudget("")
-                }}
-                className="mt-4 text-sm font-medium text-primary hover:underline"
-              >
-                Clear all filters
-              </button>
+            <div className="rounded-xl border border-border p-12 text-center">
+              <h2 className="text-lg font-medium mb-2">No packages match these filters</h2>
+              <p className="text-muted-foreground mb-4">Try another selling season or view all upcoming years.</p>
+              <Link href={allYearsHref} className="underline">View all upcoming years</Link>
             </div>
           )}
         </div>
