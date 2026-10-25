@@ -32,6 +32,39 @@ function getAccessTokenExpiresAt(accessToken: string) {
   }
 }
 
+async function refreshSessionUser(token: any) {
+  if (!token.accessToken || !token.id) {
+    return token
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/users/${token.id}`, {
+      headers: { Authorization: `Bearer ${token.accessToken}` },
+    })
+    if (!response.ok) {
+      console.error(
+        `Unable to refresh the authenticated user after a session update: ${response.status}`,
+      )
+      return token
+    }
+
+    const user = await response.json()
+    return {
+      ...token,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      location: user.location,
+      kycStatus: user.kycStatus,
+      isVerified: user.isVerified,
+    }
+  } catch (error) {
+    console.error("Unable to refresh the authenticated user after a session update:", error)
+    return token
+  }
+}
+
 async function refreshAccessToken(token: any) {
   try {
     const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -116,13 +149,9 @@ export const authOptions: any = {
       const { resolveAuthRedirect } = await import("@/lib/auth-navigation")
       return resolveAuthRedirect(url, baseUrl)
     },
-    async jwt({ token, user, account, trigger, session }: any) {
-      if (
-        trigger === "update" &&
-        typeof session?.phone === "string" &&
-        /^\+[1-9]\d{7,14}$/.test(session.phone)
-      ) {
-        token.phone = session.phone
+    async jwt({ token, user, account, trigger }: any) {
+      if (trigger === "update") {
+        token = await refreshSessionUser(token)
       }
 
       // Initial sign in

@@ -57,7 +57,7 @@ export function EmailVerificationBanner() {
           <AlertCircle className="h-4 w-4" />
           <strong className="font-semibold">Verify your email</strong>
           <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>
-          Please verify your email address to unlock all wallet and booking features.
+          Please verify your email address to secure your account and use booking features.
         </p>
         
         {status === "success" ? (
