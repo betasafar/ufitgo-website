@@ -9,14 +9,37 @@ import { Input } from "@/components/ui/input"
 import { UfitGoLogo } from "@/components/ufitgo-logo"
 import { getSignOutCallbackUrl } from "@/lib/auth-navigation"
 
+const PHONE_COUNTRIES = [
+  { code: "NG", name: "Nigeria", dialCode: "+234", flag: "🇳🇬", example: "812 345 6789" },
+  { code: "GH", name: "Ghana", dialCode: "+233", flag: "🇬🇭", example: "24 123 4567" },
+  { code: "SA", name: "Saudi Arabia", dialCode: "+966", flag: "🇸🇦", example: "50 123 4567" },
+  { code: "GB", name: "United Kingdom", dialCode: "+44", flag: "🇬🇧", example: "7700 900123" },
+  { code: "US", name: "United States", dialCode: "+1", flag: "🇺🇸", example: "201 555 0123" },
+] as const
+
+function normalizePhoneNumber(dialCode: string, localNumber: string) {
+  const nationalDigits = localNumber.replace(/\D/g, "").replace(/^0+/, "")
+  const internationalDigits = `${dialCode.replace(/\D/g, "")}${nationalDigits}`
+
+  if (internationalDigits.length < 8 || internationalDigits.length > 15) {
+    return null
+  }
+
+  return `+${internationalDigits}`
+}
+
 export default function OnboardingPage() {
   const { data: session, update } = useSession()
   const router = useRouter()
   
-  const [phone, setPhone] = useState("")
+  const [countryCode, setCountryCode] = useState("NG")
+  const [localPhoneNumber, setLocalPhoneNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const selectedCountry =
+    PHONE_COUNTRIES.find((country) => country.code === countryCode) ??
+    PHONE_COUNTRIES[0]
 
   // If session is broken (missing user ID), force them to log out and try again
   if (session && !session.user?.id) {
@@ -45,6 +68,15 @@ export default function OnboardingPage() {
 
     setIsLoading(true)
     setError("")
+    const phone = normalizePhoneNumber(
+      selectedCountry.dialCode,
+      localPhoneNumber,
+    )
+    if (!phone) {
+      setError("Enter a valid phone number for the selected country.")
+      setIsLoading(false)
+      return
+    }
 
     try {
       const API_URL = (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") + "/api"
@@ -91,7 +123,7 @@ export default function OnboardingPage() {
           <UfitGoLogo className="mb-6 h-10 w-auto" />
           <h1 className="font-serif text-2xl font-bold text-foreground">Just One More Step</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            We need your phone number to secure your account and set up your wallet.
+            Add a phone number so we can secure your account and support your journey.
           </p>
         </div>
 
@@ -103,16 +135,36 @@ export default function OnboardingPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-semibold text-foreground/80">Phone Number</label>
-            <Input 
-              id="phone" 
+            <label htmlFor="local-phone-number" className="text-sm font-semibold text-foreground/80">Phone Number</label>
+            <div className="flex overflow-hidden rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+              <label className="sr-only" htmlFor="phone-country">Country</label>
+              <select
+                id="phone-country"
+                value={countryCode}
+                onChange={(event) => setCountryCode(event.target.value)}
+                className="max-w-36 border-r border-input bg-muted/40 px-3 text-sm font-medium outline-none"
+              >
+                {PHONE_COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.dialCode}
+                  </option>
+                ))}
+              </select>
+              <Input
+                id="local-phone-number"
               type="tel" 
-              placeholder="+2348123456789"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+                inputMode="tel"
+                autoComplete="tel-national"
+                placeholder={selectedCountry.example}
+                value={localPhoneNumber}
+                onChange={(event) => setLocalPhoneNumber(event.target.value)}
               required
-              className="h-12 rounded-xl"
-            />
+                className="h-12 border-0 focus-visible:ring-0"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {selectedCountry.name} ({selectedCountry.dialCode}) is selected. Do not include the country code.
+            </p>
           </div>
           
           <Button type="submit" className="w-full h-12 rounded-xl" disabled={isLoading || success}>
