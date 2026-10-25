@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { Phone, Mail, MessageSquare, FileText, ChevronRight, HelpCircle, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getSupportContact } from "@/lib/support-contact"
 
-export default function SupportPage() {
+export default async function SupportPage() {
+  const supportContact = await getSupportContact()
   const faqs = [
     {
       question: "How do I create a savings target?",
@@ -36,13 +38,13 @@ export default function SupportPage() {
         <div className="md:col-span-2 space-y-6">
           <div className="grid sm:grid-cols-2 gap-4">
             
-            <a href="https://wa.me/2340000000000" target="_blank" rel="noopener noreferrer" className="group p-6 bg-card border border-border rounded-3xl hover:border-green-500/50 transition-all shadow-sm block">
+            {supportContact && <a href={supportContact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="group p-6 bg-card border border-border rounded-3xl hover:border-green-500/50 transition-all shadow-sm block">
               <div className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <MessageSquare className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg mb-1">WhatsApp Support</h3>
               <p className="text-sm text-muted-foreground font-medium">Get instant help from our agents.</p>
-            </a>
+            </a>}
             
             <a href="mailto:support@ufitgo.ng" className="group p-6 bg-card border border-border rounded-3xl hover:border-primary/50 transition-all shadow-sm block">
               <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

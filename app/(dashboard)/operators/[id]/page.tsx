@@ -8,6 +8,7 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { WhatsappAction } from "@/components/whatsapp-action"
 import { resolvePackageImage } from "@/lib/package-image"
+import { getSupportContact, supportWhatsappUrl } from "@/lib/support-contact"
 
 export const revalidate = 3600 // Revalidate every hour
 
@@ -18,6 +19,7 @@ export default async function OperatorDetailsPage({
 }>) {
   let operatorDetails
   const { id } = await params
+  const supportContact = await getSupportContact()
 
   try {
     const res = await fetchOperatorDetails(id)
@@ -75,9 +77,10 @@ export default async function OperatorDetailsPage({
     availabilityStatus: apiPkg.availabilityStatus,
   }))
 
-  const UFITGO_WHATSAPP = "+2348148804448"
   const whatsappMessage = `Hi Ufitgo Support, I am interested in booking with the operator: *${nameToDisplay}*. Can you help me?`
-  const whatsappUrl = `https://wa.me/${UFITGO_WHATSAPP.replace("+", "")}?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappUrl = supportContact
+    ? supportWhatsappUrl(supportContact, whatsappMessage)
+    : null
 
   return (
     <div className="flex-1 bg-background pb-24">
@@ -240,7 +243,7 @@ export default async function OperatorDetailsPage({
               <p className="text-sm text-muted-foreground mb-6">
                 Our support team is ready to assist you with booking {nameToDisplay}'s packages.
               </p>
-              <WhatsappAction whatsappUrl={whatsappUrl} operatorName={nameToDisplay} />
+              {whatsappUrl && <WhatsappAction whatsappUrl={whatsappUrl} operatorName={nameToDisplay} />}
             </ScrollReveal>
           </div>
         </div>

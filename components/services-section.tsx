@@ -1,5 +1,6 @@
 import { IdCard, MapPin, MessageCircle } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { getSupportContact, supportWhatsappUrl } from "@/lib/support-contact"
 
 const services = [
   {
@@ -38,9 +39,8 @@ const services = [
   */
 ]
 
-const whatsappNumber = "2348148804448"
-
-export function ServicesSection() {
+export async function ServicesSection() {
+  const supportContact = await getSupportContact()
   return (
     <section id="services" className="py-24 bg-zinc-950 text-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -54,10 +54,10 @@ export function ServicesSection() {
         </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
+          {supportContact && services.map((service, index) => (
             <ScrollReveal key={index} delay={index * 150} duration={600} className={service.span}>
               <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi UfitGo, I am interested in ${service.title}.`)}`}
+                href={supportWhatsappUrl(supportContact, `Hi UfitGo, I am interested in ${service.title}.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Chat with UfitGo on WhatsApp about ${service.title}`}

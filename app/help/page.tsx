@@ -1,8 +1,10 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Mail, MessageSquare, PhoneCall, HelpCircle, ArrowRight, MapPin } from "lucide-react"
+import { getSupportContact } from "@/lib/support-contact"
 
-export default function SupportPage() {
+export default async function SupportPage() {
+  const supportContact = await getSupportContact()
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <SiteHeader />
@@ -57,16 +59,16 @@ export default function SupportPage() {
               </div>
 
               {/* Contact Card 3 */}
-              <div className="rounded-2xl bg-white p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100 transition-all hover:-translate-y-1 hover:shadow-md animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+              {supportContact && <div className="rounded-2xl bg-white p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100 transition-all hover:-translate-y-1 hover:shadow-md animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
                 <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
                   <PhoneCall className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-slate-900">Phone & WhatsApp</h3>
                 <p className="text-sm text-slate-500 mb-6">For urgent issues and immediate assistance during travel.</p>
-                <a href="tel:+2348148804448" className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-700">
-                  +234 8148 804 448 <ArrowRight className="ml-1 h-4 w-4" />
+                <a href={supportContact.phoneHref} className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-700">
+                  {supportContact.displayNumber} <ArrowRight className="ml-1 h-4 w-4" />
                 </a>
-              </div>
+              </div>}
             </div>
 
             <section className="mt-16 border-y border-slate-200 py-10">
