@@ -15,6 +15,7 @@ declare module "next-auth" {
     };
     accessToken?: string;
     error?: string;
+    authMethod?: "credentials" | "google" | "apple";
   }
 
   interface User {
@@ -44,5 +45,6 @@ declare module "next-auth/jwt" {
     isVerified?: boolean;
     accessToken?: string;
     error?: string;
+    authMethod?: "credentials" | "google" | "apple";
   }
 }

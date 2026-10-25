@@ -1,4 +1,4 @@
-const PRODUCTION_SITE_URL = "https://ufitgo.ng"
+const PRODUCTION_SITE_URL = "https://www.ufitgo.ng"
 
 export function getSignOutCallbackUrl(path = "/") {
   const isLocalhost =

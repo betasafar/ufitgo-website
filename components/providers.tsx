@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from "react"
 import { InactivityTracker } from "./inactivity-tracker"
 import { SessionReauthModal } from "./session-reauth-modal"
+import { LastAuthMethodRecorder } from "./last-auth-method-recorder"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -18,6 +19,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
+        <LastAuthMethodRecorder />
         <InactivityTracker />
         <SessionReauthModal />
         {children}

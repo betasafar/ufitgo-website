@@ -105,6 +105,7 @@ export const authOptions: any = {
     async jwt({ token, user, account }: any) {
       // Initial sign in
       if (account && user) {
+        token.authMethod = account.provider
         if (account.provider === "google") {
           // Handshake Google id_token with our backend
           try {
@@ -165,6 +166,7 @@ export const authOptions: any = {
         session.user.isVerified = token.isVerified as boolean | undefined
         session.accessToken = token.accessToken as string | undefined
         session.error = token.error as string | undefined
+        session.authMethod = token.authMethod as "credentials" | "google" | "apple" | undefined
       }
       return session
     },
