@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { useSession, signOut } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UfitGoLogo } from "@/components/ufitgo-logo"
-import { getSignOutCallbackUrl } from "@/lib/auth-navigation"
 
 const PHONE_COUNTRIES = [
   { code: "NG", name: "Nigeria", dialCode: "+234", flag: "🇳🇬", example: "812 345 6789" },
@@ -29,7 +28,7 @@ function normalizePhoneNumber(dialCode: string, localNumber: string) {
 }
 
 export default function OnboardingPage() {
-  const { data: session, update } = useSession()
+  const { data: session, status, update } = useSession()
   const router = useRouter()
   
   const [countryCode, setCountryCode] = useState("NG")
@@ -40,24 +39,15 @@ export default function OnboardingPage() {
   const selectedCountry =
     PHONE_COUNTRIES.find((country) => country.code === countryCode) ??
     PHONE_COUNTRIES[0]
+  const hasActiveSession =
+    status === "authenticated" &&
+    Boolean(session?.user?.id && session.accessToken && !session.error)
 
-  // If session is broken (missing user ID), force them to log out and try again
-  if (session && !session.user?.id) {
-    signOut({ callbackUrl: getSignOutCallbackUrl("/login?error=SessionExpired") })
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Resetting session...</span>
-      </div>
-    )
-  }
-
-  // If session doesn't exist or if they already have a phone, send them away
-  // (In a real app, layout or middleware prevents them from seeing a flash of this)
-  if (session && session.user?.phone) {
-    router.push("/dashboard")
-    return null
-  }
+  useEffect(() => {
+    if (hasActiveSession && session?.user.phone) {
+      router.replace("/dashboard")
+    }
+  }, [hasActiveSession, router, session?.user.phone])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,8 +97,41 @@ export default function OnboardingPage() {
     }
   }
 
-  // Show loading state while session initializes
-  if (!session) {
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasActiveSession) {
+    const hasExpiredSession = Boolean(session?.error)
+
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <UfitGoLogo className="mx-auto mb-6 h-10 w-auto" />
+          <h1 className="font-serif text-2xl font-bold text-foreground">
+            {hasExpiredSession ? "Your session has expired" : "Sign in to continue"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {hasExpiredSession
+              ? "Please sign in again to complete your account setup."
+              : "Sign in to securely add your phone number and complete your account setup."}
+          </p>
+          <Button
+            className="mt-6 h-12 w-full rounded-xl"
+            onClick={() => router.push("/login?callbackUrl=/onboarding")}
+          >
+            Sign in
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (session.user.phone) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -123,7 +146,9 @@ export default function OnboardingPage() {
           <UfitGoLogo className="mb-6 h-10 w-auto" />
           <h1 className="font-serif text-2xl font-bold text-foreground">Just One More Step</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Add a phone number so we can secure your account and support your journey.
+            {session.user.firstName
+              ? `Hi ${session.user.firstName}, complete your setup for ${session.user.email}.`
+              : `Complete your setup for ${session.user.email}.`}
           </p>
         </div>
 
