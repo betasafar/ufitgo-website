@@ -102,7 +102,15 @@ export const authOptions: any = {
       const { resolveAuthRedirect } = await import("@/lib/auth-navigation")
       return resolveAuthRedirect(url, baseUrl)
     },
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account, trigger, session }: any) {
+      if (
+        trigger === "update" &&
+        typeof session?.phone === "string" &&
+        /^\+[1-9]\d{7,14}$/.test(session.phone)
+      ) {
+        token.phone = session.phone
+      }
+
       // Initial sign in
       if (account && user) {
         token.authMethod = account.provider

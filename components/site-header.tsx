@@ -18,7 +18,10 @@ const navLinks = [
 export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentOnTop?: boolean }>) {
   const [open, setOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const hasActiveSession =
+    status === "authenticated" &&
+    Boolean(session?.user && session.accessToken && !session.error)
 
   useEffect(() => {
     if (!transparentOnTop) return
@@ -66,19 +69,19 @@ export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentO
 
           <div className="hidden items-center gap-3 lg:flex">
             <Link
-              href={session ? "/dashboard" : "/login"}
+              href={hasActiveSession ? "/dashboard" : "/login"}
               className={cn(
-                session
+                hasActiveSession
                   ? "inline-flex size-10 items-center justify-center rounded-full border transition-all duration-300"
                   : "text-sm font-semibold transition-colors duration-300",
                 isTransparent
                   ? "border-white/30 text-white hover:bg-white/10"
                   : "border-zinc-600 text-foreground hover:bg-secondary"
               )}
-              title={session ? "My dashboard" : "Sign in"}
-              aria-label={session ? "My dashboard" : "Sign in"}
+              title={hasActiveSession ? "My dashboard" : "Sign in"}
+              aria-label={hasActiveSession ? "My dashboard" : "Sign in"}
             >
-              {session ? <CircleUserRound className="size-5" /> : "Sign in"}
+              {hasActiveSession ? <CircleUserRound className="size-5" /> : "Sign in"}
             </Link>
           </div>
 
@@ -133,14 +136,14 @@ export function SiteHeader({ transparentOnTop = false }: Readonly<{ transparentO
           ))}
           <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
             <Link
-              href={session ? "/dashboard" : "/login"}
+              href={hasActiveSession ? "/dashboard" : "/login"}
               onClick={() => setOpen(false)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "w-full bg-transparent h-12 text-base flex items-center justify-center"
               )}
             >
-              {session ? "My dashboard" : "Sign in"}
+              {hasActiveSession ? "My dashboard" : "Sign in"}
             </Link>
           </div>
         </nav>
