@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
@@ -36,6 +36,9 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [isResendingVerification, setIsResendingVerification] = useState(false)
+  const [verificationMessage, setVerificationMessage] = useState("")
+  const refreshedUserId = useRef<string | null>(null)
   const selectedCountry =
     PHONE_COUNTRIES.find((country) => country.code === countryCode) ??
     PHONE_COUNTRIES[0]
@@ -48,6 +51,68 @@ export default function OnboardingPage() {
       router.replace("/dashboard")
     }
   }, [hasActiveSession, router, session?.user.phone])
+
+  useEffect(() => {
+    const userId = session?.user?.id
+    if (
+      !hasActiveSession ||
+      !userId ||
+      session.user.isVerified ||
+      refreshedUserId.current === userId
+    ) {
+      return
+    }
+
+    refreshedUserId.current = userId
+    void update().catch((refreshError) => {
+      console.error("Unable to refresh email verification status:", refreshError)
+    })
+  }, [
+    hasActiveSession,
+    session?.user?.id,
+    session?.user?.isVerified,
+    update,
+  ])
+
+  const handleResendVerification = async () => {
+    if (!session?.accessToken) {
+      setVerificationMessage("Your session has expired. Please sign in again.")
+      return
+    }
+
+    setIsResendingVerification(true)
+    setVerificationMessage("")
+
+    try {
+      const apiUrl =
+        (process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8080") +
+        "/api"
+      const response = await fetch(`${apiUrl}/auth/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        body: JSON.stringify({ email: session.user.email }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to resend the verification email.")
+      }
+
+      setVerificationMessage(
+        "Verification email sent. Check your inbox and spam folder.",
+      )
+    } catch (resendError) {
+      setVerificationMessage(
+        resendError instanceof Error
+          ? resendError.message
+          : "Unable to resend the verification email.",
+      )
+    } finally {
+      setIsResendingVerification(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,6 +200,43 @@ export default function OnboardingPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!session.user.isVerified) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <UfitGoLogo className="mx-auto mb-6 h-10 w-auto" />
+          <h1 className="font-serif text-2xl font-bold text-foreground">
+            Verify your email first
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We sent a verification link to <strong>{session.user.email}</strong>.
+            Open it to continue setting up your account.
+          </p>
+          <Button
+            className="mt-6 h-12 w-full rounded-xl"
+            variant="outline"
+            onClick={handleResendVerification}
+            disabled={isResendingVerification}
+          >
+            {isResendingVerification ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              "Resend verification email"
+            )}
+          </Button>
+          {verificationMessage && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              {verificationMessage}
+            </p>
+          )}
+        </div>
       </div>
     )
   }

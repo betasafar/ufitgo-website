@@ -14,7 +14,6 @@ export default function RegisterPage() {
   
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
-  const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -51,7 +50,6 @@ export default function RegisterPage() {
         body: JSON.stringify({
           firstName,
           lastName,
-          phone,
           email,
           password,
           ...(isReferralProgramEnabled && referralCode.trim()
@@ -131,19 +129,6 @@ export default function RegisterPage() {
             </div>
           </div>
           
-          <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-semibold text-foreground/80">Phone Number</label>
-            <Input 
-              id="phone" 
-              type="tel" 
-              placeholder="+1234567890"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              className="h-12 rounded-xl"
-            />
-          </div>
-
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-semibold text-foreground/80">Email Address</label>
             <Input 
