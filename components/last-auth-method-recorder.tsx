@@ -5,10 +5,10 @@ import { useSession } from "next-auth/react"
 
 export const LAST_AUTH_METHOD_STORAGE_KEY = "ufitgo:last-auth-method"
 
-export type AuthMethod = "credentials" | "google" | "apple"
+export type AuthMethod = "credentials" | "google"
 
 function isAuthMethod(value: unknown): value is AuthMethod {
-  return value === "credentials" || value === "google" || value === "apple"
+  return value === "credentials" || value === "google"
 }
 
 export function LastAuthMethodRecorder() {

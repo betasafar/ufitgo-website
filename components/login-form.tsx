@@ -29,7 +29,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   useEffect(() => {
     const value = localStorage.getItem(LAST_AUTH_METHOD_STORAGE_KEY)
-    if (value === "credentials" || value === "google" || value === "apple") {
+    if (value === "credentials" || value === "google") {
       setLastAuthMethod(value)
     }
   }, [])
@@ -169,21 +169,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
             Google
-          </Button>
-        </div>
-
-        <div className="relative">
-          {lastAuthMethod === "apple" && <span className="absolute -top-3 left-4 z-10 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">Last used</span>}
-          <Button 
-            type="button"
-            onClick={() => alert("Apple Auth not configured yet.")}
-            variant="outline" 
-            className="w-full h-12 relative flex items-center justify-center bg-card hover:bg-secondary"
-          >
-            <svg className="absolute left-4 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.05 20.28c-.98.95-2.05 1.8-3.08 1.8-1.09 0-1.44-.65-2.67-.65-1.2 0-1.63.63-2.65.65-1.08.02-2.31-1.01-3.13-2.2C3.82 17.43 2.5 14.33 4 12c.74-1.15 1.95-1.9 3.25-1.93 1.05-.02 2.04.7 2.68.7.63 0 1.82-.87 3.08-.75 1.33.13 2.53.64 3.33 1.58-2.82 1.68-2.35 5.56.45 6.69-.64 1.55-1.66 3.01-2.74 3.99zM12.03 7.25c-.15-2.23 1.66-4.14 3.73-4.25.32 2.3-1.85 4.38-3.73 4.25z"/>
-            </svg>
-            Apple
           </Button>
         </div>
       </div>

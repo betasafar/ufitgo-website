@@ -8,6 +8,10 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
+  LAST_AUTH_METHOD_STORAGE_KEY,
+  type AuthMethod,
+} from "@/components/last-auth-method-recorder"
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -40,6 +44,7 @@ export function SessionReauthModal() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [reason, setReason] = useState("Your session has expired or is no longer valid.")
+  const [lastAuthMethod, setLastAuthMethod] = useState<AuthMethod | null>(null)
 
   const isProtectedRoute = useMemo(
     () =>
@@ -50,8 +55,17 @@ export function SessionReauthModal() {
 
   useEffect(() => {
     const storedEmail = window.localStorage.getItem(LAST_AUTH_EMAIL_KEY)
+    const storedAuthMethod = window.localStorage.getItem(
+      LAST_AUTH_METHOD_STORAGE_KEY,
+    )
     const activeEmail = session?.user?.email || storedEmail || ""
 
+    if (
+      storedAuthMethod === "credentials" ||
+      storedAuthMethod === "google"
+    ) {
+      setLastAuthMethod(storedAuthMethod)
+    }
     if (activeEmail) {
       window.localStorage.setItem(LAST_AUTH_EMAIL_KEY, activeEmail)
       setEmail(activeEmail)
@@ -97,6 +111,12 @@ export function SessionReauthModal() {
     }
   }, [status, session, isProtectedRoute])
 
+  const authMethod =
+    session?.authMethod === "credentials" || session?.authMethod === "google"
+      ? session.authMethod
+      : lastAuthMethod
+  const usesGoogle = authMethod === "google"
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError("")
@@ -115,6 +135,24 @@ export function SessionReauthModal() {
         setError(result.error.includes("CredentialsSignin") ? "Invalid email or password. Please try again." : "We could not sign you back in. Please try again.")
         setIsSubmitting(false)
         return
+      }
+
+      const handleGoogleReauth = async () => {
+        setError("")
+        setIsSubmitting(true)
+
+        try {
+          const result = await signIn("google", {
+            callbackUrl: window.location.href,
+          })
+          if (result?.error) {
+            setError("We could not sign you back in with Google. Please try again.")
+            setIsSubmitting(false)
+          }
+        } catch {
+          setError("We could not sign you back in with Google. Please try again.")
+          setIsSubmitting(false)
+        }
       }
 
       window.localStorage.setItem(LAST_AUTH_EMAIL_KEY, email)
@@ -170,21 +208,27 @@ export function SessionReauthModal() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="reauth-password" className="text-sm font-medium text-foreground/80">
-                Password
-              </label>
-              <Input
-                id="reauth-password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                required
-                className="h-12 rounded-xl"
-              />
-            </div>
+            {usesGoogle ? (
+              <p className="text-sm text-muted-foreground">
+                Continue with Google to re-authenticate this account.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                <label htmlFor="reauth-password" className="text-sm font-medium text-foreground/80">
+                  Password
+                </label>
+                <Input
+                  id="reauth-password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  required
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            )}
 
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -204,17 +248,18 @@ export function SessionReauthModal() {
                 </Button>
               )}
               <Button
-                type="submit"
+                type={usesGoogle ? "button" : "submit"}
                 className="w-full sm:w-auto"
-                disabled={isSubmitting || !password.trim()}
+                disabled={isSubmitting || (!usesGoogle && !password.trim())}
+                onClick={usesGoogle ? handleGoogleReauth : undefined}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
+                    Signing in...
                   </>
                 ) : (
-                  "Log in again"
+                  usesGoogle ? "Continue with Google" : "Log in again"
                 )}
               </Button>
             </DialogFooter>

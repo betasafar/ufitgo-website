@@ -226,7 +226,7 @@ export const authOptions: any = {
         session.user.isVerified = token.isVerified as boolean | undefined
         session.accessToken = token.accessToken as string | undefined
         session.error = token.error as string | undefined
-        session.authMethod = token.authMethod as "credentials" | "google" | "apple" | undefined
+        session.authMethod = token.authMethod as "credentials" | "google" | undefined
       }
       return session
     },
