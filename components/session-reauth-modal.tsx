@@ -117,6 +117,24 @@ export function SessionReauthModal() {
       : lastAuthMethod
   const usesGoogle = authMethod === "google"
 
+  const handleGoogleReauth = async () => {
+    setError("")
+    setIsSubmitting(true)
+
+    try {
+      const result = await signIn("google", {
+        callbackUrl: window.location.href,
+      })
+      if (result?.error) {
+        setError("We could not sign you back in with Google. Please try again.")
+        setIsSubmitting(false)
+      }
+    } catch {
+      setError("We could not sign you back in with Google. Please try again.")
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError("")
@@ -135,24 +153,6 @@ export function SessionReauthModal() {
         setError(result.error.includes("CredentialsSignin") ? "Invalid email or password. Please try again." : "We could not sign you back in. Please try again.")
         setIsSubmitting(false)
         return
-      }
-
-      const handleGoogleReauth = async () => {
-        setError("")
-        setIsSubmitting(true)
-
-        try {
-          const result = await signIn("google", {
-            callbackUrl: window.location.href,
-          })
-          if (result?.error) {
-            setError("We could not sign you back in with Google. Please try again.")
-            setIsSubmitting(false)
-          }
-        } catch {
-          setError("We could not sign you back in with Google. Please try again.")
-          setIsSubmitting(false)
-        }
       }
 
       window.localStorage.setItem(LAST_AUTH_EMAIL_KEY, email)
