@@ -1,16 +1,34 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSession } from "next-auth/react"
 import { AlertCircle, CheckCircle2, Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function EmailVerificationBanner() {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
   const [isVisible, setIsVisible] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
+  const refreshedUserId = useRef<string | null>(null)
+
+  useEffect(() => {
+    const userId = session?.user?.id
+    if (
+      !userId ||
+      !session.accessToken ||
+      session.user.isVerified ||
+      refreshedUserId.current === userId
+    ) {
+      return
+    }
+
+    refreshedUserId.current = userId
+    void update().catch((error) => {
+      console.error("Unable to refresh email verification status:", error)
+    })
+  }, [session?.accessToken, session?.user?.id, session?.user?.isVerified, update])
 
   // If user is verified, or not logged in, don't show the banner
   if (!session?.user || (session.user as any).isVerified || !isVisible) {
