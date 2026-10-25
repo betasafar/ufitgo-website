@@ -18,6 +18,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL
   ? `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api` 
   : (process.env.NEXT_PUBLIC_USER_API_URL || "http://localhost:8080/api");
 
+function getAccessTokenExpiresAt(accessToken: string) {
+  try {
+    const payload = JSON.parse(
+      Buffer.from(accessToken.split(".")[1], "base64url").toString("utf8"),
+    ) as { exp?: number }
+
+    return typeof payload.exp === "number"
+      ? payload.exp * 1000 - 30_000
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
 async function refreshAccessToken(token: any) {
   try {
     const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -31,7 +45,7 @@ async function refreshAccessToken(token: any) {
       ...token,
       accessToken: refreshed.token,
       refreshToken: refreshed.refreshToken,
-      accessTokenExpires: Date.now() + 60 * 60 * 1000,
+      accessTokenExpires: getAccessTokenExpiresAt(refreshed.token),
       error: undefined,
     };
   } catch {
@@ -126,7 +140,7 @@ export const authOptions: any = {
             if (res.ok && data.success) {
               token.accessToken = data.token
               token.refreshToken = data.refreshToken
-              token.accessTokenExpires = Date.now() + 60 * 60 * 1000
+              token.accessTokenExpires = getAccessTokenExpiresAt(data.token)
               token.id = data.user.id
               token.email = data.user.email
               token.firstName = data.user.firstName
@@ -145,7 +159,7 @@ export const authOptions: any = {
           // Credentials login already fetched everything in authorize()
           token.accessToken = user.token
           token.refreshToken = user.refreshToken
-          token.accessTokenExpires = Date.now() + 60 * 60 * 1000
+          token.accessTokenExpires = getAccessTokenExpiresAt(user.token)
           token.id = user.id
           token.email = user.email
           token.firstName = user.firstName
@@ -156,8 +170,17 @@ export const authOptions: any = {
           token.isVerified = user.isVerified
         }
       }
-      if (!user && token.refreshToken && token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
-        return token;
+      const accessTokenExpiresAt =
+        typeof token.accessToken === "string"
+          ? getAccessTokenExpiresAt(token.accessToken)
+          : token.accessTokenExpires
+      if (
+        !user &&
+        token.refreshToken &&
+        accessTokenExpiresAt &&
+        Date.now() < accessTokenExpiresAt
+      ) {
+        return { ...token, accessTokenExpires: accessTokenExpiresAt };
       }
       if (!user && token.refreshToken) return refreshAccessToken(token);
       return token
