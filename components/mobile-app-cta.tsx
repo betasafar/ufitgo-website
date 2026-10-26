@@ -1,18 +1,20 @@
 "use client"
 
 import { FormEvent, useState } from "react"
-import { Smartphone } from "lucide-react"
+import { CheckCircle2, Smartphone } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
 
 export function MobileAppCta() {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
 
   const subscribe = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setStatus("submitting")
     setMessage("")
+    setShowSuccessToast(false)
 
     try {
       const response = await fetch("/api/app-launch-waitlist", {
@@ -25,6 +27,8 @@ export function MobileAppCta() {
       setEmail("")
       setStatus("success")
       setMessage("You are on the list. We will email you when UfitGo is ready for you.")
+      setShowSuccessToast(true)
+      window.setTimeout(() => setShowSuccessToast(false), 5000)
     } catch (error) {
       setStatus("error")
       setMessage(error instanceof Error ? error.message : "Unable to join the launch list.")
@@ -33,6 +37,18 @@ export function MobileAppCta() {
 
   return (
     <section id="mobile-app" className="scroll-mt-20 overflow-hidden bg-[#f4efe1] py-16 sm:py-24">
+      {showSuccessToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-start gap-3 rounded-xl border border-[#d1a42a] bg-[#fff7d6] px-4 py-3 text-[#5f4300] shadow-xl sm:left-auto sm:right-6 sm:mx-0"
+        >
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#9a6a00]" />
+          <p className="text-sm font-semibold leading-5">
+            You are on the list. We will email you when UfitGo is ready for you.
+          </p>
+        </div>
+      )}
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative grid items-center gap-10 overflow-hidden rounded-2xl border border-[#cbdcd2] bg-[#e4f0e8] px-6 py-10 shadow-[0_24px_60px_rgba(16,44,41,0.12)] sm:px-12 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
           <div className="absolute inset-x-0 top-0 h-2 bg-[#d1b874]" aria-hidden="true" />
@@ -60,7 +76,18 @@ export function MobileAppCta() {
                 <button type="submit" disabled={status === "submitting"} className="h-12 rounded-lg bg-[#0b3a35] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0b6b5d] disabled:cursor-not-allowed disabled:opacity-70">{status === "submitting" ? "Joining..." : "Notify me"}</button>
               </div>
               <p className="mt-3 text-xs leading-5 text-[#58776e]">By joining, you agree to receive one-time UfitGo app-launch updates. You can unsubscribe at any time.</p>
-              {message && <p role="status" className={`mt-3 text-sm ${status === "success" ? "text-[#087260]" : "text-red-700"}`}>{message}</p>}
+              {message && (
+                <p
+                  role="status"
+                  className={`mt-4 rounded-lg px-4 py-3 text-sm font-semibold ${
+                    status === "success"
+                      ? "border border-[#d1a42a] bg-[#fff7d6] text-[#7a5600]"
+                      : "border border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
+                  {message}
+                </p>
+              )}
             </form>
           </ScrollReveal>
 
