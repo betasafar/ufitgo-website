@@ -26,7 +26,7 @@ export function MobileAppCta() {
       if (!response.ok) throw new Error(payload?.message || "Unable to join the launch list.")
       setEmail("")
       setStatus("success")
-      setMessage("You are on the list. We will email you when UfitGo is ready for you.")
+      setMessage("You're on the list! 💚 Thank you for joining us. We'll email you as soon as UfitGo is ready to welcome you!")
       setShowSuccessToast(true)
       window.setTimeout(() => setShowSuccessToast(false), 5000)
     } catch (error) {
@@ -45,7 +45,7 @@ export function MobileAppCta() {
         >
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#9a6a00]" />
           <p className="text-sm font-semibold leading-5">
-            You are on the list. We will email you when UfitGo is ready for you.
+            You're on the list! 💚 Thank you for joining us. We'll email you as soon as UfitGo is ready to welcome you!
           </p>
         </div>
       )}
