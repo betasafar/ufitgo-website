@@ -6,6 +6,7 @@ import { useState } from "react"
 import { InactivityTracker } from "./inactivity-tracker"
 import { SessionReauthModal } from "./session-reauth-modal"
 import { LastAuthMethodRecorder } from "./last-auth-method-recorder"
+import { PostHogAnalytics } from "./posthog-provider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
+        <PostHogAnalytics />
         <LastAuthMethodRecorder />
         <InactivityTracker />
         <SessionReauthModal />

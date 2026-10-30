@@ -6,6 +6,7 @@ import { MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { LoginForm } from "@/components/login-form"
+import { webAnalytics } from "@/lib/analytics"
 
 interface WhatsappActionProps {
   whatsappUrl: string
@@ -17,6 +18,9 @@ export function WhatsappAction({ whatsappUrl, operatorName }: WhatsappActionProp
   const [isLoginOpen, setIsLoginOpen] = useState(false)
 
   const handleAction = (e: React.MouseEvent) => {
+    webAnalytics.trackContactClick(undefined, undefined, "whatsapp", {
+      operator_name: operatorName,
+    })
     if (!session?.user) {
       e.preventDefault()
       setIsLoginOpen(true)

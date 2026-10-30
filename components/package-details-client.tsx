@@ -1,12 +1,13 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { 
   BadgeCheck, CalendarDays, Clock, Check, MapPin, 
   Bookmark, ArrowLeft, ArrowRight, ShieldCheck, Star, UsersRound
 } from "lucide-react"
 import { type Package, formatNaira, getPackageAvailability, hasInstallmentPlan } from "@/lib/packages"
+import { webAnalytics } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { RegistrationModal } from "@/components/registration-modal"
@@ -21,6 +22,17 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
   const [modalMode, setModalMode] = useState<"book" | "save">("book")
   const hasInstallments = hasInstallmentPlan(pkg)
   const availability = getPackageAvailability(pkg)
+
+  useEffect(() => {
+    webAnalytics.trackPackageView(pkg.id, {
+      package_name: pkg.name,
+      package_type: pkg.type,
+      category: pkg.category,
+      price: pkg.priceFrom,
+      operator_id: pkg.operator?.id,
+      operator_name: pkg.operator?.name,
+    })
+  }, [pkg.id, pkg.name, pkg.type, pkg.category, pkg.priceFrom, pkg.operator?.id, pkg.operator?.name])
 
   const handleBack = () => {
     router.push("/packages")
@@ -216,6 +228,13 @@ export function PackageDetailsClient({ pkg }: { pkg: Package }) {
                     if (!availability.isBookable) {
                       return
                     }
+                    webAnalytics.trackBookingCheckoutStarted({
+                      packageId: pkg.id,
+                      package_name: pkg.name,
+                      amount: pkg.priceFrom,
+                      currency: "NGN",
+                      operatorId: pkg.operator?.id,
+                    })
                     if (!session?.user?.id) {
                       router.push(`/login?callbackUrl=${encodeURIComponent(window.location.href)}`)
                       return
