@@ -241,7 +241,16 @@ export default function BookingDetailsPage({ params }: Readonly<{ params: Promis
           "Authorization": `Bearer ${session?.accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount, callbackUrl })
+        body: JSON.stringify({
+          amount,
+          paymentStages: Array.isArray(booking.paymentStages)
+            ? booking.paymentStages
+                .filter((s: any) => s.enabled && Number(s.balance || 0) > 0)
+                .slice(0, 1)
+                .map((s: any) => s.key)
+            : ["FULL_PAYMENT"],
+          callbackUrl,
+        })
       });
       
       if (res.ok) {

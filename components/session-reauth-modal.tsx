@@ -26,10 +26,8 @@ const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000
 const PROTECTED_PATH_PREFIXES = [
   "/dashboard",
   "/bookings",
-  "/wallet",
   "/profile",
   "/settings",
-  "/transactions",
   "/passport",
 ]
 

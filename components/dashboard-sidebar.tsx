@@ -30,8 +30,7 @@ const sidebarSections = [
     links: [
       { name: "Packages", href: "/packages", icon: Package },
       { name: "Operators", href: "/operators", icon: Briefcase },
-      { name: "Bookings", href: "/bookings", icon: Briefcase },
-      { name: "Payment History", href: "/transactions", icon: History },
+      { name: "My Bookings", href: "/bookings", icon: Briefcase },
     ]
   },
   {

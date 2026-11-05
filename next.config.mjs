@@ -9,13 +9,23 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/wallet',
+        destination: '/bookings',
+        permanent: true,
+      },
+      {
         source: '/wallet/:path*',
-        destination: '/dashboard',
+        destination: '/bookings',
+        permanent: true,
+      },
+      {
+        source: '/transactions',
+        destination: '/bookings',
         permanent: true,
       },
       {
         source: '/exchange/:path*',
-        destination: '/dashboard',
+        destination: '/bookings',
         permanent: true,
       },
     ]
