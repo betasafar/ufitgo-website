@@ -111,7 +111,11 @@ export function RegistrationModal({ isOpen, onClose, pkg }: RegistrationModalPro
           "Content-Type": "application/json",
           Authorization: `Bearer ${(session as any)?.accessToken}`,
         },
-        body: JSON.stringify({ code: promoCodeInput }),
+        body: JSON.stringify({
+          code: promoCodeInput.trim(),
+          packageId: Number(pkg.id),
+          pilgrims: travellers,
+        }),
       })
       const data = await res.json()
       if (!res.ok || !data.success) {
@@ -120,11 +124,15 @@ export function RegistrationModal({ isOpen, onClose, pkg }: RegistrationModalPro
         setAppliedPromoCode("")
       } else {
         const promo = data.data
+        const postGroupBase = Math.max(0, basePackagePrice - groupDiscountAmount)
         let discountAmt = 0
-        if (promo.type === 'percentage') {
-          discountAmt = basePackagePrice * (promo.value / 100)
+        if (String(promo.type).toLowerCase() === 'percentage') {
+          discountAmt = Math.round(postGroupBase * (Number(promo.value || 0) / 100))
+          if (promo.maxDiscountAmount && Number(promo.maxDiscountAmount) > 0) {
+            discountAmt = Math.min(discountAmt, Number(promo.maxDiscountAmount))
+          }
         } else {
-          discountAmt = promo.value
+          discountAmt = Number(promo.value || 0)
         }
         setPromoDiscountAmount(discountAmt)
         setAppliedPromoCode(promo.code)
